@@ -305,7 +305,7 @@
             </div>
             <div class="creation-modal-info" id="creationModalInfo"></div>
             <label for="creationDegreesInput" class="creation-degrees-label">Degrés à afficher, dans l’ordre :</label>
-            <input type="text" id="creationDegreesInput" class="creation-degrees-input" placeholder="Ex. 1336175" autocomplete="off">
+            <input type="text" id="creationDegreesInput" class="creation-degrees-input" placeholder="Ex. 13361751+" autocomplete="off">
             <div class="creation-modal-actions">
                 <button type="button" class="btn-secondary" onclick="fermerPopupCreation()">Annuler</button>
                 <button type="button" class="btn-primary" onclick="creerDominoSurMesure()">Créer</button>
@@ -1839,10 +1839,17 @@
             const scaleKey = modal.dataset.scaleKey || getScaleKeyPourCreation(cards.length);
             const scale = GAMMES[scaleKey] || GAMMES['maj'];
             const maxDegre = scale.length + 1;
-            const degres = (valeur.match(/[1-9]/g) || [])
-                .slice(0, 9)
-                .map(v => parseInt(v, 10))
-                .filter(d => d >= 1 && d <= maxDegre);
+            const tokens = [];
+            for (let i = 0; i < valeur.length && tokens.length < 9; i++) {
+                const caractere = valeur[i];
+                if (caractere === '1' && valeur[i + 1] === '+') {
+                    tokens.push(maxDegre);
+                    i++;
+                } else if (/[1-9]/.test(caractere)) {
+                    tokens.push(parseInt(caractere, 10));
+                }
+            }
+            const degres = tokens.filter(d => d >= 1 && d <= maxDegre);
 
             if (!degres.length) return;
 
