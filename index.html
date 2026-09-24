@@ -104,6 +104,97 @@
         }
         canvas { display: block; width: 100%; height: 100%; }
 
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(0,0,0,0.62);
+        }
+        .modal-overlay.open { display: flex; }
+        .creation-modal {
+            width: min(460px, 100%);
+            max-height: 90vh;
+            overflow-y: auto;
+            background: #252525;
+            color: #e0e0e0;
+            border: 1px solid #555;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 10px 35px rgba(0,0,0,0.5);
+        }
+        .creation-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .creation-modal-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        .modal-close {
+            padding: 2px 9px;
+            background: transparent;
+            color: #e0e0e0;
+            font-size: 28px;
+            line-height: 1;
+        }
+        .modal-close:hover { background: #444; }
+        .creation-modal-info {
+            padding: 10px 12px;
+            margin-bottom: 16px;
+            border-radius: 6px;
+            background: #303030;
+            border: 1px solid #444;
+            font-size: 13px;
+            line-height: 1.45;
+        }
+        .creation-degrees {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px;
+        }
+        .degree-option {
+            position: relative;
+        }
+        .degree-option input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .degree-option label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
+            padding: 8px;
+            border: 1px solid #555;
+            border-radius: 6px;
+            background: #303030;
+            color: #fff;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .degree-option input:checked + label {
+            background: #fff;
+            color: #000;
+            border-color: #fff;
+        }
+        .creation-modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 18px;
+        }
+        @media (max-width: 480px) {
+            .creation-degrees { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+
         @media print {
             body { background: white; padding: 0; }
             h1, .controls { display: none; }
@@ -199,8 +290,26 @@
             <button id="btnToggleRythme" class="btn-secondary" style="display: none;" onclick="toggleModeRythme()">⮑ Rythmes</button>
             <button id="btnLearning" class="btn-learning" onclick="toggleModeApprentissage()">⮑ Apprentissage</button>
             <button class="btn-primary" onclick="ajouterDomino()">+ Ajouter</button>
+            <button class="btn-primary" onclick="ouvrirPopupCreation()">Créer</button>
             <button class="btn-secondary" onclick="effacerTout()">Réinitialiser</button>
+            <button class="btn-secondary" onclick="effacerTousLesDominos()">Effacer</button>
             <button class="btn-secondary" onclick="window.print()">Imprimer</button>
+        </div>
+    </div>
+
+    <div id="creationModal" class="modal-overlay" aria-hidden="true">
+        <div class="creation-modal" role="dialog" aria-modal="true" aria-labelledby="creationModalTitle">
+            <div class="creation-modal-header">
+                <h2 id="creationModalTitle">Créer un domino</h2>
+                <button type="button" class="modal-close" onclick="fermerPopupCreation()" aria-label="Fermer">×</button>
+            </div>
+            <div class="creation-modal-info" id="creationModalInfo"></div>
+            <label for="creationDegreesInput" class="creation-degrees-label">Degrés à afficher, dans l’ordre :</label>
+            <input type="text" id="creationDegreesInput" class="creation-degrees-input" placeholder="Ex. 1336175" autocomplete="off">
+            <div class="creation-modal-actions">
+                <button type="button" class="btn-secondary" onclick="fermerPopupCreation()">Annuler</button>
+                <button type="button" class="btn-primary" onclick="creerDominoSurMesure()">Créer</button>
+            </div>
         </div>
     </div>
 
@@ -1671,6 +1780,81 @@
             genererSerie(14);
         }
 
+        function effacerTousLesDominos() {
+            stopCurrentPlayback();
+            document.getElementById('grid').innerHTML = '';
+        }
+
+        function getPremierePlaceVide() {
+            const grid = document.getElementById('grid');
+            const cards = Array.from(grid.getElementsByClassName('domino-card'));
+            const used = new Set(cards.map(card => parseInt(card.querySelector('.domino-number')?.textContent, 10)).filter(Number.isFinite));
+            let position = 1;
+            while (used.has(position)) position++;
+            return position - 1;
+        }
+
+        function getScaleKeyPourCreation(index) {
+            const styleVal = document.getElementById('styleGamme').value || 'scale_maj';
+            return assignScaleForDomino(styleVal, index);
+        }
+
+        function ouvrirPopupCreation() {
+            const grid = document.getElementById('grid');
+            const cards = Array.from(grid.getElementsByClassName('domino-card'));
+            const index = cards.length;
+            const scaleKey = getScaleKeyPourCreation(index);
+            const tonalite = document.getElementById('tonique');
+            const nomGamme = SCALE_NAMES[scaleKey] || scaleKey;
+            const nomTonique = tonalite.options[tonalite.selectedIndex]?.text || '';
+
+            document.getElementById('creationModalInfo').innerHTML =
+                `<strong>Gamme :</strong> ${nomGamme}<br>` +
+                `<strong>Tonique :</strong> ${nomTonique}`;
+
+            document.getElementById('creationDegreesInput').value = '';
+
+            const modal = document.getElementById('creationModal');
+            modal.dataset.scaleKey = scaleKey;
+            modal.dataset.index = index;
+            modal.classList.add('open');
+            modal.setAttribute('aria-hidden', 'false');
+            setTimeout(() => document.getElementById('creationDegreesInput').focus(), 0);
+        }
+
+        function fermerPopupCreation() {
+            const modal = document.getElementById('creationModal');
+            modal.classList.remove('open');
+            modal.setAttribute('aria-hidden', 'true');
+        }
+
+        function creerDominoSurMesure() {
+            const modal = document.getElementById('creationModal');
+            const valeur = document.getElementById('creationDegreesInput').value.trim();
+            if (!valeur) return;
+
+            stopCurrentPlayback();
+            const grid = document.getElementById('grid');
+            const cards = Array.from(grid.getElementsByClassName('domino-card'));
+            const scaleKey = modal.dataset.scaleKey || getScaleKeyPourCreation(cards.length);
+            const scale = GAMMES[scaleKey] || GAMMES['maj'];
+            const maxDegre = scale.length + 1;
+            const degres = (valeur.match(/[1-9]/g) || [])
+                .slice(0, 9)
+                .map(v => parseInt(v, 10))
+                .filter(d => d >= 1 && d <= maxDegre);
+
+            if (!degres.length) return;
+
+            const index = cards.length;
+            const rythmes = new Array(degres.length).fill('N');
+            const card = creerDominoElement(degres, index, scaleKey, rythmes);
+            card._isFirstTwo = false;
+            grid.appendChild(card);
+            mettreAJourNumeros();
+            fermerPopupCreation();
+        }
+
         function redessinerGrille() {
             stopCurrentPlayback();
             const grid = document.getElementById('grid');
@@ -1749,6 +1933,14 @@
                 mettreAJourInfoBulle(card);
             });
         }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') fermerPopupCreation();
+        });
+
+        document.getElementById('creationModal').addEventListener('click', (e) => {
+            if (e.target.id === 'creationModal') fermerPopupCreation();
+        });
 
         document.addEventListener('dblclick', (e) => {
             if (e.target.closest('.domino-card') || e.target.closest('.controls') || e.target.tagName === 'SELECT' || e.target.tagName === 'BUTTON') return;
