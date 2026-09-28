@@ -533,6 +533,34 @@
             return palette[getRandomInt(0, palette.length - 1)];
         }
 
+        // Gammes non heptatoniques : degrés nommés d'après la gamme majeure (num = degré I..VII, alt = altération)
+        const DEGREES_HEPTA = {
+            'penta_maj':   [[1,''],[2,''],[3,''],[5,''],[6,'']],
+            'penta_min':   [[1,''],[3,'♭'],[4,''],[5,''],[7,'♭']],
+            'blues_min':   [[1,''],[3,'♭'],[4,''],[5,'♭'],[5,''],[7,'♭']],
+            'blues_maj':   [[1,''],[2,''],[3,'♭'],[3,''],[5,''],[6,'']],
+            'par_ton':     [[1,''],[2,''],[3,''],[4,'♯'],[5,'♯'],[7,'♭']],
+            'dim_dt_t':    [[1,''],[2,'♭'],[3,'♭'],[3,''],[4,'♯'],[5,''],[6,''],[7,'♭']],
+            'bebop_dom':   [[1,''],[2,''],[3,''],[4,''],[5,''],[6,''],[7,'♭'],[7,'']],
+            'chromatique': [[1,''],[2,'♭'],[2,''],[3,'♭'],[3,''],[4,''],[4,'♯'],[5,''],[6,'♭'],[6,''],[7,'♭'],[7,'']]
+        };
+
+        // Retourne l'étiquette du degré et sa hauteur (0 = tonique) dans le domino, ainsi que le diviseur vertical
+        function getDegreAffichage(scaleKey, degre, scaleLen) {
+            const table = DEGREES_HEPTA[scaleKey];
+            if (!table) {
+                return { texte: toRoman(degre, scaleLen), pos: degre - 1, diviseur: scaleLen };
+            }
+            const idx = (degre - 1) % table.length;
+            const octave = Math.floor((degre - 1) / table.length);
+            const [num, alt] = table[idx];
+            return {
+                texte: toRoman(num, 7),
+                pos: octave * 7 + (num - 1),
+                diviseur: 7
+            };
+        }
+
         function toRoman(degre, scaleLen = 7) {
             const scaleDegre = ((degre - 1) % scaleLen) + 1;
             const map = [[10, 'X'], [9, 'IX'], [8, 'VIII'], [7, 'VII'], [6, 'VI'], [5, 'V'], [4, 'IV'], [3, 'III'], [2, 'II'], [1, 'I']];
@@ -1220,12 +1248,13 @@
                 ctx.textBaseline = 'middle';
                 ctx.fillStyle = '#000000';
 
-                const verticalDivisor = scaleLen;
+                const scaleKeyDessin = getCardScaleKey(card);
 
                 degres.forEach((degre, i) => {
                     const stepX = widthUsable / Math.max(1, nNotes - 1);
                     const x = paddingX + (i * stepX);
-                    const y = (h - paddingBottom) - ((degre - 1) * (heightUsable / verticalDivisor));
+                    const affDeg = getDegreAffichage(scaleKeyDessin, degre, scaleLen);
+                    const y = (h - paddingBottom) - (affDeg.pos * (heightUsable / affDeg.diviseur));
 
                     let texte = '';
                     if (modeAffichage === 'notes') {
@@ -1233,12 +1262,7 @@
                     } else if (modeAffichage === 'lettres') {
                         texte = getNoteInfo(degre, card, true, i, degres).name;
                     } else {
-                        const scaleKey = getCardScaleKey(card);
-                        if (scaleKey === 'chromatique') {
-                            texte = (((degre - 1) % scaleLen) + 1).toString();
-                        } else {
-                            texte = toRoman(degre, scaleLen);
-                        }
+                        texte = affDeg.texte;
                     }
 
                     ctx.fillText(texte, x, y);
@@ -1331,12 +1355,13 @@
                         const paddingBottom = 25;
                         const widthUsable = w - (paddingX * 2);
                         const heightUsable = h - paddingTop - paddingBottom;
-                        const verticalDivisor = scaleLen;
+                        const scaleKeyClic = getCardScaleKey(card);
 
                         card._degres.forEach((degre, i) => {
                             const stepX = widthUsable / Math.max(1, nNotes - 1);
                             const x = paddingX + (i * stepX);
-                            const y = (h - paddingBottom) - ((degre - 1) * (heightUsable / verticalDivisor));
+                            const affDeg = getDegreAffichage(scaleKeyClic, degre, scaleLen);
+                            const y = (h - paddingBottom) - (affDeg.pos * (heightUsable / affDeg.diviseur));
 
                             if (Math.abs(clickX - x) < 18 && Math.abs(clickY - y) < 15) {
                                 noteIndexClic = i;
