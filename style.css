@@ -192,7 +192,13 @@ canvas { display: block; width: 100%; height: 100%; }
    la hauteur de la carte s'adapte donc automatiquement. */
 @media screen and (hover: none) and (pointer: coarse) and (orientation: portrait) and (max-width: 600px),
        screen and (hover: none) and (pointer: coarse) and (orientation: landscape) and (max-height: 500px) {
-    body { padding: 16px 10px; }
+    /* Grand espace vide sous les dominos : le double clic dessous ajoute un domino.
+       touch-action évite que le double appui ne zoome la page. */
+    body {
+        padding: 16px 10px max(280px, 50vh);
+        min-height: 100vh;
+        touch-action: manipulation;
+    }
     #grid {
         --domino-gap: 10px;
         gap: var(--domino-gap);
