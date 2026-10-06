@@ -186,7 +186,7 @@ canvas { display: block; width: 100%; height: 100%; }
     .creation-degrees { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
-/* ===== Téléphones uniquement : 2 dominos par ligne en portrait, 3 en paysage =====
+/* ===== Téléphones uniquement : 2 dominos par ligne en portrait, 4 en paysage =====
    Le JS fixe en ligne la largeur de la carte (180px ou 280px) et la taille du canvas ;
    on les neutralise avec !important. Le canvas garde son ratio d'origine (width/height du canvas),
    la hauteur de la carte s'adapte donc automatiquement. */
@@ -215,12 +215,40 @@ canvas { display: block; width: 100%; height: 100%; }
         width: calc((100% - var(--domino-gap, 10px)) / 2) !important;
         flex: 0 0 calc((100% - var(--domino-gap, 10px)) / 2);
     }
+
+    /* Barre de réglages : chaque réglage prend toute la largeur, libellé au-dessus du menu,
+       pour que « Mode / Style » et ses longues options ne soient plus tronqués. */
+    h1 { font-size: 20px; text-align: center; }
+    .controls {
+        width: 100%;
+        padding: 12px;
+        gap: 12px;
+        justify-content: stretch;
+    }
+    .control-group {
+        flex: 1 1 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 4px;
+        min-width: 0;
+    }
+    /* Tonalité et Tonique côte à côte */
+    .control-group:has(#transposition),
+    .control-group:has(#tonique) {
+        flex: 1 1 calc(50% - 6px);
+    }
+    .control-group select {
+        width: 100%;
+        min-width: 0;
+        text-overflow: ellipsis;
+    }
+    .btn-group { width: 100%; justify-content: center; }
 }
 
 @media screen and (hover: none) and (pointer: coarse) and (orientation: landscape) and (max-height: 500px) {
     .domino-card {
-        width: calc((100% - 2 * var(--domino-gap, 10px)) / 3) !important;
-        flex: 0 0 calc((100% - 2 * var(--domino-gap, 10px)) / 3);
+        width: calc((100% - 3 * var(--domino-gap, 10px)) / 4) !important;
+        flex: 0 0 calc((100% - 3 * var(--domino-gap, 10px)) / 4);
     }
 }
 
