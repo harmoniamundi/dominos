@@ -1319,8 +1319,12 @@
                 clickTimer = setTimeout(() => {
                     clickTimer = null;
                     const rect = canvas.getBoundingClientRect();
-                    const clickX = e.clientX - rect.left;
-                    const clickY = e.clientY - rect.top;
+                    // Le canvas peut être affiché à une taille différente de sa taille logique
+                    // (ex. téléphone : 2 ou 3 dominos par ligne) : on convertit le clic en coordonnées logiques.
+                    const logicalW = canvas.width / 2;
+                    const logicalH = canvas.height / 2;
+                    const clickX = (e.clientX - rect.left) * (logicalW / rect.width);
+                    const clickY = (e.clientY - rect.top) * (logicalH / rect.height);
 
                     const modeAffichage = document.getElementById('affichage').value;
                     const scale = getCardScale(card);
