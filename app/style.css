@@ -1,0 +1,512 @@
+/* Générateur de Dominos à Chanter — style aligné sur Chord Scales Machine.
+   Mêmes couleurs (fond #1e1e1e, en-tête #282828, panneaux #2c2c2e, boutons #3a3a3c, accents bleu / émeraude / violet),
+   mêmes formes (coins arrondis, boutons segmentés, bascules vertes, icônes) et même vocabulaire pour les fonctions communes. */
+
+:root {
+    --bg-page: #1e1e1e;
+    --bg-header: #282828;
+    --bg-panel: #2c2c2e;
+    --bg-modal: #222222;
+    --bg-well: #1a1a1a;
+    --line: #333333;
+    --line-soft: #3a3a3c;
+    --line-ctl: #4a4a4c;
+    --ctl: #3a3a3c;
+    --ctl-hover: #48484a;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --blue: #2563eb;
+    --emerald: #059669;
+    --emerald-hover: #10b981;
+    --purple: #9333ea;
+    --purple-hover: #a855f7;
+    --slate: #475569;
+    --slate-hover: #64748b;
+    --rose: #e11d48;
+    --rose-hover: #f43f5e;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+[hidden] { display: none !important; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;
+    background-color: var(--bg-page);
+    color: #f1f5f9;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+button, select, input { font-family: inherit; }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid #60a5fa; outline-offset: 2px; }
+
+/* ===== En-tête ===== */
+.app-header {
+    background: var(--bg-header);
+    border-bottom: 1px solid var(--line);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    user-select: none;
+    -webkit-user-select: none;
+    flex-shrink: 0;
+}
+.app-title { font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--text); }
+
+.app-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 20px 30px;
+}
+
+/* ===== Panneau de réglages ===== */
+.controls {
+    background: var(--bg-panel);
+    border: 1px solid var(--line-soft);
+    border-radius: 8px;
+    padding: 12px 16px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 100%;
+    margin-bottom: 24px;
+}
+.controls-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 12px 16px;
+}
+.controls-row + .controls-row { border-top: 1px solid var(--line-soft); padding-top: 12px; }
+.field { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.field-label { font-size: 12px; font-weight: 600; color: var(--muted); white-space: nowrap; }
+.btn-group { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+/* Menus déroulants */
+select {
+    padding: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    background: var(--ctl);
+    border: 1px solid var(--line-ctl);
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.1), 0 1px 2px rgba(0,0,0,.06);
+    cursor: pointer;
+    outline: none;
+    transition: background-color .15s;
+}
+select:hover { background: var(--ctl-hover); }
+select option, select optgroup { background: var(--bg-panel); color: #fff; }
+/* Menu de style : violet, comme le menu de style de la Jam */
+.select-style { background: var(--purple); border: 0; padding: 8px 10px; max-width: 260px; text-overflow: ellipsis; }
+.select-style:hover { background: var(--purple-hover); }
+
+/* Boutons segmentés (Instrument, Affichage) */
+.segmented {
+    display: flex;
+    background: var(--bg-well);
+    padding: 4px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+}
+.seg-btn {
+    flex: 1;
+    padding: 4px 10px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--muted);
+    font-size: inherit;
+    font-weight: inherit;
+    cursor: pointer;
+    transition: color .15s, background-color .15s;
+}
+.seg-btn:hover { color: #fff; }
+.seg-btn.is-active { background: var(--ctl); color: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.3); }
+
+/* Boutons */
+button {
+    cursor: pointer;
+    transition: background-color .15s, color .15s, border-color .15s;
+}
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+    color: #fff;
+    background: var(--ctl);
+    border: 0;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.1), 0 1px 2px rgba(0,0,0,.06);
+}
+.btn:hover { background: var(--ctl-hover); }
+.btn-slate { background: var(--slate); font-weight: 600; }
+.btn-slate:hover { background: var(--slate-hover); }
+.btn-danger { background: var(--rose); font-weight: 600; }
+.btn-danger:hover { background: var(--rose-hover); }
+
+/* Bascule (Rythmes, Apprentissage) : gris au repos, vert quand elle est activée */
+.btn-toggle { height: 32px; padding: 0 12px; font-weight: 600; }
+.btn-toggle.is-active { background: var(--emerald); }
+.btn-toggle.is-active:hover { background: var(--emerald-hover); }
+
+/* Boutons d'écoute (lecture, arpège) */
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    color: #e2e8f0;
+    background: var(--ctl);
+    border: 1px solid var(--line-ctl);
+    border-radius: 6px;
+}
+.btn-icon:hover { background: var(--line-ctl); }
+
+/* Bouton d'icône discret (Imprimer) */
+.btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    color: var(--muted);
+    background: transparent;
+    border: 0;
+    border-radius: 6px;
+}
+.btn-ghost:hover { color: #fff; background: var(--line); }
+.icon { width: 16px; height: 16px; display: block; }
+
+/* ===== Grille et dominos ===== */
+#grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: flex-start;
+    max-width: 1400px;
+    width: 100%;
+    min-height: 250px;
+}
+.domino-card {
+    background: #f7f7f7;
+    border: 2px solid #000000;
+    border-radius: 10px;
+    width: 180px;
+    height: 230px;
+    position: relative;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    transition: transform 0.1s ease, border-color 0.2s ease, box-shadow 0.2s ease, width 0.2s ease;
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+.domino-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.45);
+}
+/* Domino en cours de lecture : bleu, comme la mesure active de la grille d'accords */
+.domino-card.playing {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.45);
+}
+.domino-number {
+    position: absolute;
+    top: 8px;
+    left: 18px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: Arial, sans-serif;
+    color: #8e8e93;
+    line-height: 1;
+    cursor: help;
+}
+canvas { display: block; width: 100%; height: 100%; }
+
+/* ===== Fenêtre « Créer un domino » ===== */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0,0,0,0.62);
+}
+.modal-overlay.open { display: flex; }
+.creation-modal {
+    width: min(460px, 100%);
+    max-height: 90vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: var(--bg-modal);
+    color: var(--text);
+    border: 1px solid var(--line-soft);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+}
+.creation-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+.creation-modal-header h2 {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: #fff;
+}
+.modal-close {
+    display: inline-flex;
+    padding: 4px;
+    color: var(--muted);
+    background: transparent;
+    border: 0;
+    border-radius: 4px;
+}
+.modal-close:hover { color: #fff; }
+.creation-modal-info {
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: var(--bg-well);
+    border: 1px solid var(--line);
+    font-size: 12px;
+    line-height: 1.5;
+    color: #cbd5e1;
+}
+.creation-modal-info strong { color: #fff; }
+.creation-degrees-label { font-size: 12px; font-weight: 600; color: var(--muted); }
+.creation-degrees-input {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    background: var(--ctl);
+    border: 1px solid var(--line-ctl);
+    border-radius: 8px;
+    outline: none;
+}
+.creation-degrees-input::placeholder { color: #64748b; font-weight: 400; }
+.creation-degrees-input:focus { border-color: #60a5fa; }
+.creation-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    padding-top: 10px;
+    border-top: 1px solid var(--line);
+}
+.btn-modal {
+    padding: 6px 10px;
+    border-radius: 7px;
+    border: 1px solid var(--line-soft);
+    background: #2a2a2c;
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+}
+.btn-modal:hover { border-color: #60a5fa; }
+.btn-modal-primary { background: var(--blue); border-color: #3b82f6; color: #fff; }
+
+/* ===== Annuler / Rétablir, sauvegardes, export / import ===== */
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.btn:disabled:hover { background: var(--slate); }
+
+/* Bouton « Sauvegardes ▾ » */
+.btn-saves {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 180px;
+    max-width: 100%;
+    padding: 6px 8px;
+    font-size: 12px;
+    color: #cbd5e1;
+    background: var(--bg-well);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+}
+.btn-saves:hover { border-color: #60a5fa; }
+.saves-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.saves-caret { color: #64748b; flex-shrink: 0; }
+
+/* Fenêtre flottante « Sauvegardes » (déplaçable par sa barre de titre) */
+#saved-grids-modal {
+    position: fixed;
+    z-index: 1900;
+    width: 300px;
+    max-width: calc(100vw - 16px);
+    max-height: calc(100vh - 16px);
+    border-radius: 12px;
+    box-shadow: 0 12px 40px rgba(0,0,0,.6);
+}
+#saved-grids-modal.hidden { display: none; }
+#saved-grids-modal.sg-dragging { opacity: .96; box-shadow: 0 16px 48px rgba(0,0,0,.7); }
+#saved-grids-modal.sg-dragging .sg-head { cursor: grabbing; }
+#saved-grids-modal.sg-sheet { left: 0 !important; right: 0; bottom: 0; top: auto !important; width: auto; max-width: none; border-radius: 14px 14px 0 0; }
+#saved-grids-modal.sg-sheet .sg-head { cursor: default; }
+.sg-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    background: var(--bg-modal);
+    border: 1px solid var(--line-soft);
+    border-radius: 12px;
+}
+.sg-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
+.sg-title { font-size: 14px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: #fff; }
+.sg-list { background: var(--bg-well); border: 1px solid var(--line); border-radius: 4px; overflow-y: auto; max-height: min(60vh, 360px); }
+.sg-item { display: flex; align-items: center; justify-content: space-between; gap: 4px; padding: 6px 8px; font-size: 12px; color: #cbd5e1; cursor: pointer; }
+.sg-item:hover { background: #252525; }
+.sg-item.sg-action { color: #34d399; font-weight: 600; }
+.sg-item.sg-empty { color: #64748b; cursor: default; }
+.sg-item.sg-empty:hover { background: transparent; }
+.sg-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sg-del { padding: 0 4px; font-weight: 700; color: #64748b; }
+.sg-del:hover { color: #fb7185; }
+.sg-sep { border-top: 1px solid var(--line); margin: 2px 0; }
+
+
+/* Nom de la grille chargée (un clic pour le renommer) */
+.grid-title-wrap { width: 100%; max-width: 1400px; display: flex; justify-content: flex-start; margin: -8px 0 12px; }
+.grid-title-wrap:not(:has(:not([hidden]))) { display: none; }
+.loaded-grid-name { font-size: 14px; font-weight: 700; letter-spacing: .025em; text-transform: uppercase; color: #cbd5e1; cursor: text; }
+.loaded-grid-name:hover { color: #fff; }
+.grid-title-input {
+    width: 260px;
+    max-width: 100%;
+    padding: 2px 8px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: .025em;
+    text-transform: uppercase;
+    color: var(--text);
+    background: var(--bg-well);
+    border: 1px solid var(--line-soft);
+    border-radius: 6px;
+    outline: none;
+}
+.grid-title-input::placeholder { color: #64748b; text-transform: none; font-weight: 500; letter-spacing: 0; }
+.grid-title-input:focus { border-color: #60a5fa; }
+
+/* ===== Téléphones uniquement : 2 dominos par ligne en portrait, 4 en paysage =====
+   Le JS fixe en ligne la largeur de la carte (180px ou 280px) et la taille du canvas ;
+   on les neutralise avec !important. Le canvas garde son ratio d'origine (width/height du canvas),
+   la hauteur de la carte s'adapte donc automatiquement. */
+@media screen and (hover: none) and (pointer: coarse) and (orientation: portrait) and (max-width: 600px),
+       screen and (hover: none) and (pointer: coarse) and (orientation: landscape) and (max-height: 500px) {
+    /* Grand espace vide sous les dominos : le double clic dessous ajoute un domino.
+       touch-action évite que le double appui ne zoome la page. */
+    body { touch-action: manipulation; }
+    .app-main { padding: 16px 10px max(280px, 50vh); }
+    #grid {
+        --domino-gap: 10px;
+        gap: var(--domino-gap);
+        max-width: 100%;
+    }
+    .domino-card {
+        height: auto !important;
+        min-width: 0;
+    }
+    .domino-card canvas {
+        width: 100% !important;
+        height: auto !important;
+    }
+    .domino-card:hover { transform: none; box-shadow: 0 1px 3px rgba(0,0,0,0.4); }
+    .domino-number { left: 10px; top: 6px; font-size: 13px; }
+
+    /* Zones de toucher confortables */
+    select { min-height: 40px; font-size: 14px; }
+    .btn { min-height: 40px; }
+    .btn-toggle { height: 40px; }
+    .btn-icon { min-width: 40px; min-height: 40px; }
+    .btn-ghost { min-width: 40px; min-height: 40px; }
+    .seg-btn { padding: 8px 10px; }
+    .creation-degrees-input { font-size: 16px; }
+}
+
+@media screen and (hover: none) and (pointer: coarse) and (orientation: portrait) and (max-width: 600px) {
+    .domino-card {
+        width: calc((100% - var(--domino-gap, 10px)) / 2) !important;
+        flex: 0 0 calc((100% - var(--domino-gap, 10px)) / 2);
+    }
+
+    /* Barre de réglages : chaque réglage prend toute la largeur, libellé au-dessus du menu,
+       pour que les longues options du menu de style ne soient plus tronquées. */
+    .controls {
+        width: 100%;
+        padding: 12px;
+        gap: 12px;
+    }
+    .controls-row { justify-content: stretch; gap: 12px; }
+    .field { flex: 1 1 100%; }
+    .field-label { flex: 0 0 auto; }
+    .field select { flex: 1; width: 100%; min-width: 0; text-overflow: ellipsis; }
+    .field .segmented { flex: 1; }
+    .select-style { flex: 1 1 100%; max-width: none; }
+    .btn-saves { flex: 1 1 100%; width: 100%; min-height: 40px; }
+    #btnUndo, #btnRedo { font-size: 18px; }
+    .btn-group { width: 100%; justify-content: center; }
+    .btn-group .btn { flex: 1 1 auto; }
+}
+
+@media screen and (hover: none) and (pointer: coarse) and (orientation: landscape) and (max-height: 500px) {
+    .domino-card {
+        width: calc((100% - 3 * var(--domino-gap, 10px)) / 4) !important;
+        flex: 0 0 calc((100% - 3 * var(--domino-gap, 10px)) / 4);
+    }
+}
+
+/* ===== Impression =====
+   Les en-têtes et pieds de page (titre, adresse du fichier, date, numéro de page) sont ajoutés par le navigateur
+   dans les marges de la page. Avec une marge de page nulle, il n'a plus de place pour les écrire.
+   Les marges visibles sont donc recréées par la page elle-même : à gauche et à droite par le remplissage de la grille,
+   en haut et en bas par deux cales qui se répètent sur chaque page (en-tête / pied d'un tableau d'impression). */
+/* à l'écran, le tableau d'impression est neutralisé : seul #grid compte */
+.print-frame, .print-frame > thead, .print-frame > tbody, .print-frame > tfoot,
+.print-frame tr, .print-frame td { display: contents; }
+.print-frame > thead, .print-frame > tfoot { display: none; }
+
+@page { size: auto; margin: 0; }
+
+@media print {
+    body { background: white; min-height: 0; display: block; }
+    .app-header, .controls, .modal-overlay, #saved-grids-modal, .grid-title-input { display: none !important; }
+    .app-main { padding: 0; display: block; }
+    /* Titre de la grille : imprimé en haut de la première page, aligné sur les marges des dominos.
+       Sans titre chargé, la règle « :not(:has(...)) » plus haut continue de masquer ce bloc. */
+    .grid-title-wrap { display: block; max-width: 100%; margin: 0; padding: 10mm 10mm 0; }
+    .loaded-grid-name { display: block; font-size: 20px; color: #000; letter-spacing: .02em; cursor: default; }
+    .print-frame { display: table; width: 100%; border-collapse: collapse; }
+    .print-frame > thead { display: table-header-group; }
+    .print-frame > tbody { display: table-row-group; }
+    .print-frame > tfoot { display: table-footer-group; }
+    .print-frame tr { display: table-row; }
+    .print-frame td { display: table-cell; padding: 0; }
+    .print-spacer td { height: 10mm; }
+    #grid { max-width: 100%; padding: 0 10mm; gap: 15px; display: flex; flex-wrap: wrap; }
+    .domino-card { break-inside: avoid !important; page-break-inside: avoid !important; transform: none !important; box-shadow: none !important; border-radius: 0; }
+}

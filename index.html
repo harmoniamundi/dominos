@@ -6,28 +6,27 @@
     <title>Générateur de Dominos à Chanter</title>
     <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAALElEQVQ4jWNgGAWDEv7//89g586d/x8+fPifgZGBgYGBgcf///9nAAAXKQu9w5L71AAAAABJRU5ErkJggg==">
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <meta name="theme-color" content="#282828">
+    <link rel="manifest" href="app/manifest.webmanifest">
+    <link rel="apple-touch-icon" href="app/apple-touch-icon.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Dominos">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="stylesheet" href="app/style.css">
 </head>
 <body>
 
     <audio id="silent-unlock" loop playsinline src="data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//OEAAAAAAAAAAAAAAAAAAAAAAA="></audio>
 
-    <h1>Générateur de Dominos à Chanter</h1>
+    <header class="app-header">
+        <span class="app-title">Générateur de Dominos à Chanter</span>
+    </header>
 
+    <main class="app-main">
     <div class="controls">
-        <div class="control-group">
-            <label for="affichage">Affichage :</label>
-            <select id="affichage" onchange="changerAffichage()">
-                <option value="degres" selected>Degrés</option>
-                <option value="notes">Notes</option>
-                <option value="lettres">Lettres</option>
-                <option value="portee">Portée</option>
-            </select>
-        </div>
-
-        <div class="control-group">
-            <label for="styleGamme">Mode / Style :</label>
-            <select id="styleGamme" onchange="rafraichirGrille()">
+        <div class="controls-row">
+            <select id="styleGamme" class="select-style" onchange="rafraichirGrille()" title="Mode / Style" aria-label="Mode / Style">
                 <optgroup label="--- Gammes et Modes pures ---">
                     <option value="scale_maj" selected>Gamme Majeure (Ionien)</option>
                     <option value="scale_min_nat">Mineure naturelle (Éolien)</option>
@@ -60,45 +59,76 @@
                     <option value="atonal">Atonal (Chromatique & Sérialisme libre)</option>
                 </optgroup>
             </select>
+
+            <div class="field">
+                <label class="field-label" for="tonique">Tonalité</label>
+                <select id="tonique" onchange="withUndo(redessinerGrille)" title="Tonalité principale" aria-label="Tonalité principale">
+                        <option value="0" selected>C</option>
+                        <option value="1">C♯ / D♭</option>
+                        <option value="2">D</option>
+                        <option value="3">E♭ / D♯</option>
+                        <option value="4">E</option>
+                        <option value="5">F</option>
+                        <option value="6">F♯ / G♭</option>
+                        <option value="7">G</option>
+                        <option value="8">A♭ / G♯</option>
+                        <option value="9">A</option>
+                        <option value="10">B♭ / A♯</option>
+                        <option value="11">B</option>
+                </select>
+                <button type="button" class="btn-icon" onclick="jouerTonique()" title="Écouter la tonique (I)" aria-label="Écouter la tonique (I)"><svg class="icon" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button>
+                <button type="button" class="btn-icon" onclick="jouerArpegeI_III_V()" title="Écouter l'arpège (I - III - V)" aria-label="Écouter l'arpège (I - III - V)"><svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg></button>
+            </div>
+
+            <div class="field">
+                <span class="field-label">Instrument</span>
+                <div class="segmented" role="group" aria-label="Instrument">
+                    <button type="button" class="seg-btn is-active" data-seg="transposition" data-value="-2" aria-pressed="true" onclick="choisirSegment('transposition', '-2', redessinerGrille)">Bb</button>
+                    <button type="button" class="seg-btn" data-seg="transposition" data-value="0" aria-pressed="false" onclick="choisirSegment('transposition', '0', redessinerGrille)">Ut</button>
+                    <button type="button" class="seg-btn" data-seg="transposition" data-value="3" aria-pressed="false" onclick="choisirSegment('transposition', '3', redessinerGrille)">Eb</button>
+                </div>
+                <input type="hidden" id="transposition" value="-2">
+            </div>
+
+            <div class="field">
+                <span class="field-label">Affichage</span>
+                <div class="segmented" role="group" aria-label="Affichage">
+                    <button type="button" class="seg-btn" data-seg="affichage" data-value="portee" aria-pressed="false" onclick="choisirSegment('affichage', 'portee', changerAffichage)">Portée</button>
+                    <button type="button" class="seg-btn is-active" data-seg="affichage" data-value="degres" aria-pressed="true" onclick="choisirSegment('affichage', 'degres', changerAffichage)">Degrés</button>
+                    <button type="button" class="seg-btn" data-seg="affichage" data-value="notes" aria-pressed="false" onclick="choisirSegment('affichage', 'notes', changerAffichage)">Notes</button>
+                    <button type="button" class="seg-btn" data-seg="affichage" data-value="lettres" aria-pressed="false" onclick="choisirSegment('affichage', 'lettres', changerAffichage)">Lettres</button>
+                </div>
+                <input type="hidden" id="affichage" value="degres">
+            </div>
         </div>
 
-        <div class="control-group">
-            <label for="transposition">Tonalité :</label>
-            <select id="transposition" onchange="redessinerGrille()">
-                <option value="0">Ut (C)</option>
-                <option value="-2" selected>Si♭ (B♭)</option>
-                <option value="3">Mi♭ (E♭)</option>
-            </select>
-        </div>
-
-        <div class="control-group">
-            <label for="tonique">Tonique (I) :</label>
-            <select id="tonique" onchange="redessinerGrille()">
-                <option value="0" selected>Do</option>
-                <option value="1">Do♯ / Ré♭</option>
-                <option value="2">Ré</option>
-                <option value="3">Mi♭ / Ré♯</option>
-                <option value="4">Mi</option>
-                <option value="5">Fa</option>
-                <option value="6">Fa♯ / Sol♭</option>
-                <option value="7">Sol</option>
-                <option value="8">La♭ / Sol♯</option>
-                <option value="9">La</option>
-                <option value="10">Si♭ / La♯</option>
-                <option value="11">Si</option>
-            </select>
-        </div>
-
-        <div class="btn-group">
-            <button class="btn-audio" onclick="jouerTonique()">Écouter I</button>
-            <button class="btn-audio" onclick="jouerArpegeI_III_V()">Écouter I - III - V</button>
-            <button id="btnToggleRythme" class="btn-secondary" style="display: none;" onclick="toggleModeRythme()">⮑ Rythmes</button>
-            <button id="btnLearning" class="btn-learning" onclick="toggleModeApprentissage()">⮑ Apprentissage</button>
-            <button class="btn-primary" onclick="ajouterDomino()">+ Ajouter</button>
-            <button class="btn-primary" onclick="ouvrirPopupCreation()">Créer</button>
-            <button class="btn-secondary" onclick="effacerTout()">Réinitialiser</button>
-            <button class="btn-secondary" onclick="effacerTousLesDominos()">Effacer</button>
-            <button class="btn-secondary" onclick="window.print()">Imprimer</button>
+        <div class="controls-row">
+            <div class="btn-group">
+                <button type="button" id="btnUndo" class="btn btn-slate" onclick="annuler()" title="Annuler (⌘Z)" aria-label="Annuler" disabled>↶</button>
+                <button type="button" id="btnRedo" class="btn btn-slate" onclick="retablir()" title="Rétablir (⌘⇧Z)" aria-label="Rétablir" disabled>↷</button>
+            </div>
+            <div class="btn-group">
+                <button type="button" id="btnToggleRythme" class="btn btn-toggle" hidden aria-pressed="false" onclick="toggleModeRythme()" title="Rythmes : activé = valeurs variées dans la portée (croches, blanches, pointées, silences) ; désactivé = noires seulement">Rythmes</button>
+                <button type="button" id="btnLearning" class="btn btn-toggle" aria-pressed="false" onclick="toggleModeApprentissage()" title="Apprentissage : activé = série de dominos d'entraînement progressifs ; désactivé = dominos aléatoires du style choisi">Apprentissage</button>
+            </div>
+            <div class="btn-group">
+                <button type="button" class="btn" onclick="ajouterDomino()" title="Ajouter un domino à la suite (ou double-clic sous les dominos)">+ Ajouter</button>
+                <button type="button" class="btn" onclick="ouvrirPopupCreation()" title="Créer un domino sur mesure à partir de ses degrés">Créer</button>
+            </div>
+            <div class="btn-group">
+                <button type="button" class="btn btn-slate" onclick="effacerTout()" title="Génère une nouvelle série de 14 dominos">Générer</button>
+                <button type="button" class="btn btn-danger" onclick="effacerTousLesDominos()" title="Supprime tous les dominos">Effacer</button>
+                <button type="button" class="btn-ghost" onclick="window.print()" title="Imprimer les dominos" aria-label="Imprimer les dominos"><svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.32 0h1.005c1.045 0 1.897-.816 1.995-1.855a49.663 49.663 0 00-.128-6.078c-.075-.923-.826-1.635-1.751-1.752a48.925 48.925 0 00-15.702 0c-.925.117-1.676.83-1.751 1.752a49.665 49.665 0 00-.128 6.078c.098 1.039.95 1.855 1.995 1.855H5.34"/></svg></button>
+            </div>
+            <div class="btn-group">
+                <button type="button" id="btnSauvegardes" class="btn-saves" onclick="basculerMenuSauvegardes()" aria-haspopup="dialog" title="Sauvegardes : grilles enregistrées dans ce navigateur">
+                    <span id="saves-label" class="saves-label">Sauvegardes</span>
+                    <span class="saves-caret">▾</span>
+                </button>
+                <button type="button" class="btn btn-slate" onclick="exporterGrille()" title="Exporter la grille en cours dans un fichier .json">Exporter</button>
+                <button type="button" class="btn btn-slate" onclick="document.getElementById('import-file').click()" title="Importer une grille depuis un fichier .json">Importer</button>
+                <input type="file" id="import-file" accept=".json,application/json" hidden onchange="importerFichierGrille(this)">
+            </div>
         </div>
     </div>
 
@@ -106,19 +136,41 @@
         <div class="creation-modal" role="dialog" aria-modal="true" aria-labelledby="creationModalTitle">
             <div class="creation-modal-header">
                 <h2 id="creationModalTitle">Créer un domino</h2>
-                <button type="button" class="modal-close" onclick="fermerPopupCreation()" aria-label="Fermer">×</button>
+                <button type="button" class="modal-close" onclick="fermerPopupCreation()" title="Fermer (Échap)" aria-label="Fermer"><svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
             </div>
             <div class="creation-modal-info" id="creationModalInfo"></div>
             <label for="creationDegreesInput" class="creation-degrees-label">Degrés à afficher, dans l’ordre :</label>
             <input type="text" id="creationDegreesInput" class="creation-degrees-input" placeholder="Ex. 13361751+" autocomplete="off">
             <div class="creation-modal-actions">
-                <button type="button" class="btn-secondary" onclick="fermerPopupCreation()">Annuler</button>
-                <button type="button" class="btn-primary" onclick="creerDominoSurMesure()">Créer</button>
+                <button type="button" class="btn-modal" onclick="fermerPopupCreation()">Annuler</button>
+                <button type="button" class="btn-modal btn-modal-primary" onclick="creerDominoSurMesure()">Créer</button>
             </div>
         </div>
     </div>
 
-    <div id="grid"></div>
+    <div id="saved-grids-modal" class="hidden" role="dialog" aria-label="Sauvegardes">
+        <div class="sg-panel">
+            <div id="saved-grids-modal-head" class="sg-head" title="Glisser pour déplacer">
+                <span class="sg-title">Sauvegardes</span>
+                <button type="button" class="modal-close" onclick="fermerMenuSauvegardes()" title="Fermer (Échap)" aria-label="Fermer"><svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+            </div>
+            <div id="saved-grids-dropdown" class="sg-list"></div>
+        </div>
+    </div>
+
+    <div class="grid-title-wrap">
+        <span id="loaded-grid-name" class="loaded-grid-name" title="Cliquer pour renommer" hidden onclick="commencerRenommage()"></span>
+        <input id="grid-title-input" type="text" maxlength="60" autocomplete="off" spellcheck="false" placeholder="Titre de la grille" aria-label="Titre de la grille" title="Titre de la grille (Entrée pour valider, Échap pour annuler)" class="grid-title-input" hidden
+               onblur="validerTitre(this.value)"
+               onkeydown="if(event.key==='Enter'){this.blur();}else if(event.key==='Escape'){this.value=nomGrilleChargee||'';this.blur();}">
+    </div>
+
+    <table class="print-frame" role="presentation">
+        <thead class="print-spacer"><tr><td></td></tr></thead>
+        <tbody class="print-body"><tr><td><div id="grid"></div></td></tr></tbody>
+        <tfoot class="print-spacer"><tr><td></td></tr></tfoot>
+    </table>
+    </main>
 
     <script>
         let audioCtx = null;
@@ -400,21 +452,37 @@
             return audioCtx;
         }
 
+        // Boutons segmentés (Instrument, Affichage) : un champ caché garde la valeur lue par le reste du code
+        function choisirSegment(inputId, valeur, callback) {
+            document.getElementById(inputId).value = valeur;
+            document.querySelectorAll(`[data-seg="${inputId}"]`).forEach(btn => {
+                const actif = (btn.dataset.value === valeur);
+                btn.classList.toggle('is-active', actif);
+                btn.setAttribute('aria-pressed', String(actif));
+            });
+            if (callback) callback();
+        }
+
+        // Bascule Apprentissage : libellé fixe, état = couleur verte + aria-pressed
+        function majBoutonApprentissage() {
+            const btn = document.getElementById('btnLearning');
+            if (!btn) return;
+            btn.classList.toggle('is-active', modeApprentissageActif);
+            btn.setAttribute('aria-pressed', String(modeApprentissageActif));
+        }
+
         function changerAffichage() {
             const affichage = document.getElementById('affichage').value;
             const btnToggle = document.getElementById('btnToggleRythme');
-            if (affichage === 'portee') {
-                btnToggle.style.display = 'inline-block';
-            } else {
-                btnToggle.style.display = 'none';
-            }
+            btnToggle.hidden = (affichage !== 'portee');
             redessinerGrille();
         }
 
         function toggleModeRythme() {
             modeRythmiqueActif = !modeRythmiqueActif;
             const btnToggle = document.getElementById('btnToggleRythme');
-            btnToggle.textContent = modeRythmiqueActif ? '⮑ Noires' : '⮑ Rythmes';
+            btnToggle.classList.toggle('is-active', modeRythmiqueActif);
+            btnToggle.setAttribute('aria-pressed', String(modeRythmiqueActif));
 
             const grid = document.getElementById('grid');
             const cards = grid.getElementsByClassName('domino-card');
@@ -1387,7 +1455,7 @@
                 }, 250);
             });
 
-            card.addEventListener('dblclick', (e) => {
+            card.addEventListener('dblclick', (e) => withUndo(() => {
                 e.stopPropagation();
                 if (clickTimer) {
                     clearTimeout(clickTimer);
@@ -1460,7 +1528,7 @@
                 card._isFirstTwo = modeApprentissageActif ? false : (currentIndex < 2);
                 dessinerDominoCanvas(canvas, newDegres, card);
                 mettreAJourInfoBulle(card);
-            });
+            }));
 
             card.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
@@ -1468,8 +1536,10 @@
                 if (activePlayback.card === card) {
                     stopCurrentPlayback();
                 }
-                card.remove();
-                mettreAJourNumeros();
+                withUndo(() => {
+                    card.remove();
+                    mettreAJourNumeros();
+                });
             });
 
             return card;
@@ -1478,11 +1548,7 @@
         function genererModeApprentissage() {
             stopCurrentPlayback();
             modeApprentissageActif = true;
-            const btn = document.getElementById('btnLearning');
-            if (btn) {
-                btn.textContent = '⮑ Jeux';
-                btn.classList.add('active');
-            }
+            majBoutonApprentissage();
 
             const grid = document.getElementById('grid');
             grid.innerHTML = '';
@@ -1514,11 +1580,7 @@
         function genererSerie(total = 14) {
             stopCurrentPlayback();
             modeApprentissageActif = false;
-            const btn = document.getElementById('btnLearning');
-            if (btn) {
-                btn.textContent = '⮑ Apprentissage';
-                btn.classList.remove('active');
-            }
+            majBoutonApprentissage();
 
             const grid = document.getElementById('grid');
             grid.innerHTML = '';
@@ -1660,6 +1722,7 @@
             const modal = document.getElementById('creationModal');
             modal.classList.remove('open');
             modal.setAttribute('aria-hidden', 'true');
+            document.getElementById('creationDegreesInput').blur(); // le focus ne reste pas dans le champ masqué (⌘Z doit rester actif)
         }
 
         function creerDominoSurMesure() {
@@ -1784,7 +1847,7 @@
         });
 
         document.addEventListener('dblclick', (e) => {
-            if (e.target.closest('.domino-card') || e.target.closest('.controls') || e.target.tagName === 'SELECT' || e.target.tagName === 'BUTTON') return;
+            if (e.target.closest('.domino-card') || e.target.closest('.controls') || e.target.closest('.app-header') || e.target.closest('#saved-grids-modal') || e.target.closest('.grid-title-wrap') || e.target.tagName === 'SELECT' || e.target.tagName === 'BUTTON') return;
 
             const grid = document.getElementById('grid');
             const cards = Array.from(grid.getElementsByClassName('domino-card'));
@@ -1837,6 +1900,516 @@
 
         genererSerie(14);
         requestWakeLock();
+
+        // =====================================================================
+        // Annuler / Rétablir, sauvegardes, export / import (.json)
+        // Même fonctionnement que Chord Scales : historique de 100 étapes (⌘Z / ⌘⇧Z), fenêtre « Sauvegardes »
+        // déplaçable, « Sauvegarder sous… », Exporter / Importer un fichier .json (lecture sécurisée).
+        // =====================================================================
+        const CLE_SAUVEGARDES = 'dominosSavedGrids';
+        const LIMITE_ANNULER = 100;
+        const TRANSPOSITIONS_VALIDES = [-2, 0, 3];
+        const AFFICHAGES_VALIDES = ['degres', 'notes', 'lettres', 'portee'];
+
+        let nomGrilleChargee = null;
+        let pileAnnuler = [];
+        let pileRetablir = [];
+        let profondeurAnnuler = 0;
+        // Style et tonique « validés » : quand un menu change, sa valeur est déjà nouvelle au moment où
+        // l'action démarre ; on garde donc la dernière valeur connue pour l'état « avant ».
+        let reglagesConnus = null;
+
+        const aPropre = (obj, cle) => Object.prototype.hasOwnProperty.call(obj, cle);
+        const lireCartes = () => Array.from(document.getElementById('grid').getElementsByClassName('domino-card'));
+
+        // --- Lecture de l'état courant ---
+        function serialiserDominos() {
+            return lireCartes().map(c => ({
+                degres: [...c._degres],
+                scaleKey: c._scaleKey,
+                rythmes: [...(c._rythmes || new Array(c._degres.length).fill('N'))],
+                firstTwo: !!c._isFirstTwo
+            }));
+        }
+
+        // Réglages enregistrés avec une grille (sauvegarde et export)
+        function collecterReglages() {
+            return {
+                style: document.getElementById('styleGamme').value,
+                tonique: parseInt(document.getElementById('tonique').value, 10) || 0,
+                instrument: parseInt(document.getElementById('transposition').value, 10),
+                affichage: document.getElementById('affichage').value,
+                rythmes: modeRythmiqueActif,
+                apprentissage: modeApprentissageActif
+            };
+        }
+
+        // État de l'historique : dominos, nom chargé, style, tonique et modes. L'instrument et l'affichage
+        // sont des réglages de lecture : ils ne font pas partie de l'historique.
+        function capturerEtat() {
+            const r = collecterReglages();
+            return {
+                dominos: serialiserDominos(),
+                nom: nomGrilleChargee,
+                style: r.style,
+                tonique: r.tonique,
+                rythmes: r.rythmes,
+                apprentissage: r.apprentissage
+            };
+        }
+
+        function reconstruireDominos(liste) {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+            liste.forEach((d, i) => {
+                const card = creerDominoElement([...d.degres], i, d.scaleKey, [...d.rythmes]);
+                if (typeof d.firstTwo === 'boolean') {
+                    card._isFirstTwo = d.firstTwo;
+                    dessinerDominoCanvas(card.querySelector('canvas'), card._degres, card);
+                }
+                mettreAJourInfoBulle(card);
+                grid.appendChild(card);
+            });
+        }
+
+        function majBoutonRythmes() {
+            const btn = document.getElementById('btnToggleRythme');
+            btn.classList.toggle('is-active', modeRythmiqueActif);
+            btn.setAttribute('aria-pressed', String(modeRythmiqueActif));
+            btn.hidden = (document.getElementById('affichage').value !== 'portee');
+        }
+
+        function appliquerEtat(etat) {
+            stopCurrentPlayback();
+            document.getElementById('styleGamme').value = etat.style;
+            document.getElementById('tonique').value = String(etat.tonique);
+            modeRythmiqueActif = !!etat.rythmes;
+            modeApprentissageActif = !!etat.apprentissage;
+            majBoutonRythmes();
+            majBoutonApprentissage();
+            nomGrilleChargee = etat.nom;
+            reconstruireDominos(etat.dominos);
+            majNomGrille();
+            reglagesConnus = { style: etat.style, tonique: etat.tonique };
+        }
+
+        // --- Historique ---
+        function withUndo(fn) {
+            // Les actions imbriquées (ex. « Générer » qui appelle genererSerie) ne forment qu'une seule étape.
+            if (profondeurAnnuler > 0) { fn(); return; }
+            const avant = capturerEtat();
+            if (reglagesConnus) { avant.style = reglagesConnus.style; avant.tonique = reglagesConnus.tonique; }
+            const avantJson = JSON.stringify(avant);
+            profondeurAnnuler++;
+            try { fn(); } finally { profondeurAnnuler--; }
+            const apres = capturerEtat();
+            reglagesConnus = { style: apres.style, tonique: apres.tonique };
+            if (JSON.stringify(apres) !== avantJson) {
+                pileAnnuler.push(avant);
+                if (pileAnnuler.length > LIMITE_ANNULER) pileAnnuler.shift();
+                pileRetablir = [];
+            }
+            majBoutonsAnnuler();
+        }
+
+        function annuler() {
+            if (pileAnnuler.length === 0) return;
+            pileRetablir.push(capturerEtat());
+            appliquerEtat(pileAnnuler.pop());
+            majBoutonsAnnuler();
+        }
+
+        function retablir() {
+            if (pileRetablir.length === 0) return;
+            pileAnnuler.push(capturerEtat());
+            appliquerEtat(pileRetablir.pop());
+            majBoutonsAnnuler();
+        }
+
+        function majBoutonsAnnuler() {
+            document.getElementById('btnUndo').disabled = (pileAnnuler.length === 0);
+            document.getElementById('btnRedo').disabled = (pileRetablir.length === 0);
+        }
+
+        // Actions qui modifient la grille : chacune devient une étape annulable
+        ['ajouterDomino', 'effacerTout', 'effacerTousLesDominos', 'toggleModeApprentissage',
+         'toggleModeRythme', 'rafraichirGrille', 'creerDominoSurMesure'].forEach(nom => {
+            const original = window[nom];
+            window[nom] = function (...args) {
+                let resultat;
+                withUndo(() => { resultat = original.apply(this, args); });
+                return resultat;
+            };
+        });
+
+        // ⌘Z / Ctrl+Z : annuler ; ⌘⇧Z / Ctrl+⇧+Z / Ctrl+Y : rétablir (sauf dans un champ de saisie)
+        document.addEventListener('keydown', (e) => {
+            if (!(e.metaKey || e.ctrlKey) || e.altKey) return;
+            const k = (e.key || '').toLowerCase();
+            const estAnnuler = (k === 'z' && !e.shiftKey);
+            const estRetablir = (k === 'z' && e.shiftKey) || (k === 'y' && e.ctrlKey && !e.metaKey);
+            if (!estAnnuler && !estRetablir) return;
+            const t = e.target;
+            const nonTexte = ['range', 'checkbox', 'radio', 'button', 'file'];
+            if (t && (t.isContentEditable || t.tagName === 'TEXTAREA' ||
+                (t.tagName === 'INPUT' && !nonTexte.includes(t.type)))) return;
+            if (document.getElementById('creationModal').classList.contains('open')) return;
+            e.preventDefault();
+            if (estAnnuler) annuler(); else retablir();
+        });
+
+        // --- Sauvegardes (stockées dans le navigateur) ---
+        function lireSauvegardes() {
+            try { return JSON.parse(localStorage.getItem(CLE_SAUVEGARDES)) || {}; }
+            catch (e) { return {}; }
+        }
+
+        function ecrireSauvegardes(saved) {
+            try { localStorage.setItem(CLE_SAUVEGARDES, JSON.stringify(saved)); return true; }
+            catch (e) { return false; }
+        }
+
+        function sauvegarderSous() {
+            if (lireCartes().length === 0) return;
+            const nom = prompt('Nom de la grille à sauvegarder :', '');
+            if (!nom) return;
+            const saved = lireSauvegardes();
+            saved[nom] = { dominos: serialiserDominos(), settings: collecterReglages() };
+            if (!ecrireSauvegardes(saved)) { alert("Impossible d'enregistrer la grille."); return; }
+            nomGrilleChargee = nom;
+            rendreMenuSauvegardes();
+            majNomGrille();
+        }
+
+        // Écrase la sauvegarde actuellement chargée avec la grille et les réglages en cours.
+        function mettreAJourSauvegarde() {
+            const nom = nomGrilleChargee;
+            const saved = lireSauvegardes();
+            if (!nom || !saved[nom]) { sauvegarderSous(); return; }
+            if (lireCartes().length === 0) return;
+            saved[nom] = { dominos: serialiserDominos(), settings: collecterReglages() };
+            if (!ecrireSauvegardes(saved)) { alert("Impossible d'enregistrer la grille."); return; }
+            rendreMenuSauvegardes();
+        }
+
+        function supprimerSauvegarde(nom) {
+            if (!nom) return;
+            if (!confirm(`Supprimer la grille « ${nom} » ?`)) return;
+            const saved = lireSauvegardes();
+            delete saved[nom];
+            ecrireSauvegardes(saved);
+            rendreMenuSauvegardes();
+        }
+
+        function chargerGrilleSauvegardee(nom) { withUndo(() => chargerGrilleSauvegardeeSansHistorique(nom)); }
+
+        function chargerGrilleSauvegardeeSansHistorique(nom) {
+            if (!nom) return;
+            const entree = lireSauvegardes()[nom];
+            if (!entree) return;
+            const dominos = assainirGrilleImportee(entree.dominos);
+            if (!dominos) return;
+            stopCurrentPlayback();
+            appliquerReglagesImportes(assainirReglagesImportes(entree.settings));
+            nomGrilleChargee = nom;
+            reconstruireDominos(dominos);
+            majNomGrille();
+            rendreMenuSauvegardes();
+            if (window.innerWidth <= 640) fermerMenuSauvegardes(); // téléphone : la feuille du bas masquerait la grille
+        }
+
+        // --- Lecture sécurisée d'un fichier importé : tout ce qui n'est pas valide est écarté ---
+        function assainirGrilleImportee(brut) {
+            if (!Array.isArray(brut) || brut.length === 0 || brut.length > 200) return null;
+            const propres = [];
+            for (const item of brut) {
+                if (!item || typeof item !== 'object') return null;
+                const scaleKey = (typeof item.scaleKey === 'string' && aPropre(GAMMES, item.scaleKey)) ? item.scaleKey : 'maj';
+                const maxDegre = GAMMES[scaleKey].length + 1;
+                if (!Array.isArray(item.degres) || item.degres.length < 1 || item.degres.length > 16) return null;
+                const degres = item.degres.map(Number);
+                if (!degres.every(n => Number.isInteger(n) && n >= 1 && n <= maxDegre)) return null;
+                const rythmesValides = Array.isArray(item.rythmes) && item.rythmes.length === degres.length &&
+                    item.rythmes.every(r => typeof r === 'string' && aPropre(RHYTHM_EIGHTH_VALUES, r));
+                propres.push({
+                    degres,
+                    scaleKey,
+                    rythmes: rythmesValides ? [...item.rythmes] : new Array(degres.length).fill('N'),
+                    firstTwo: item.firstTwo === true
+                });
+            }
+            return propres;
+        }
+
+        function assainirReglagesImportes(data) {
+            const out = {};
+            if (!data || typeof data !== 'object' || Array.isArray(data)) return out;
+            const styles = Array.from(document.querySelectorAll('#styleGamme option')).map(o => o.value);
+            if (typeof data.style === 'string' && styles.includes(data.style)) out.style = data.style;
+            const tonique = Number(data.tonique);
+            if (data.tonique !== null && data.tonique !== undefined && Number.isInteger(tonique) && tonique >= 0 && tonique <= 11) out.tonique = tonique;
+            const instrument = Number(data.instrument);
+            if (data.instrument !== null && data.instrument !== undefined && TRANSPOSITIONS_VALIDES.includes(instrument)) out.instrument = instrument;
+            if (typeof data.affichage === 'string' && AFFICHAGES_VALIDES.includes(data.affichage)) out.affichage = data.affichage;
+            if (typeof data.rythmes === 'boolean') out.rythmes = data.rythmes;
+            if (typeof data.apprentissage === 'boolean') out.apprentissage = data.apprentissage;
+            return out;
+        }
+
+        function appliquerReglagesImportes(st) {
+            if (st.style !== undefined) document.getElementById('styleGamme').value = st.style;
+            if (st.tonique !== undefined) document.getElementById('tonique').value = String(st.tonique);
+            if (st.instrument !== undefined) choisirSegment('transposition', String(st.instrument));
+            if (st.affichage !== undefined) choisirSegment('affichage', st.affichage);
+            // les anciens fichiers n'ont pas ces modes : ils sont désactivés
+            modeRythmiqueActif = (st.rythmes === true);
+            modeApprentissageActif = (st.apprentissage === true);
+            majBoutonRythmes();
+            majBoutonApprentissage();
+        }
+
+        // --- Export / import d'une grille au format .json (partage entre utilisateurs) ---
+        function exporterGrille() {
+            if (lireCartes().length === 0) { alert('La grille est vide : rien à exporter.'); return; }
+            let nom = nomGrilleChargee;
+            if (!nom) {
+                nom = prompt('Nom de la grille à exporter :', 'grille');
+                if (!nom) return;
+            }
+            const payload = {
+                format: 'dominos-a-chanter-grid',
+                version: 1,
+                name: nom,
+                ...collecterReglages(),
+                dominos: serialiserDominos()
+            };
+            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const nomFichier = nom.replace(/[\\/:*?"<>|]+/g, '_').trim() || 'grille';
+            a.href = url;
+            a.download = nomFichier + '.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+
+        function importerFichierGrille(input) {
+            const file = input.files && input.files[0];
+            input.value = '';
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onerror = () => alert('Impossible de lire ce fichier.');
+            reader.onload = () => {
+                let data;
+                try { data = JSON.parse(reader.result); }
+                catch (e) { alert("Ce fichier n'est pas un JSON valide."); return; }
+
+                const brut = Array.isArray(data) ? data : (data && data.dominos);
+                const dominos = assainirGrilleImportee(brut);
+                if (!dominos) { alert("Ce fichier ne contient pas de grille valide pour l'application."); return; }
+
+                let nom = (!Array.isArray(data) && typeof data.name === 'string' && data.name.trim())
+                    ? data.name.trim().slice(0, 80)
+                    : file.name.replace(/\.json$/i, '');
+                if (!nom) nom = 'Grille importée';
+
+                const saved = lireSauvegardes();
+                let nomFinal = nom, n = 2;
+                while (aPropre(saved, nomFinal)) nomFinal = `${nom} (${n++})`;
+                saved[nomFinal] = { dominos, settings: assainirReglagesImportes(data) };
+                if (!ecrireSauvegardes(saved)) { alert("Impossible d'enregistrer la grille importée."); return; }
+
+                chargerGrilleSauvegardee(nomFinal);
+                rendreMenuSauvegardes();
+            };
+            reader.readAsText(file);
+        }
+
+        // --- Fenêtre « Sauvegardes » : flottante, déplaçable en glissant sa barre de titre ---
+        let positionMenuSauvegardes = null;
+        let menuSauvegardesLie = false;
+
+        function basculerMenuSauvegardes() {
+            const el = document.getElementById('saved-grids-modal');
+            if (el.classList.contains('hidden')) ouvrirMenuSauvegardes(); else fermerMenuSauvegardes();
+        }
+
+        function ouvrirMenuSauvegardes() {
+            const el = document.getElementById('saved-grids-modal');
+            lierMenuSauvegardes();
+            rendreMenuSauvegardes();
+            el.classList.remove('hidden');
+            placerMenuSauvegardes();
+        }
+
+        function fermerMenuSauvegardes() {
+            document.getElementById('saved-grids-modal').classList.add('hidden');
+        }
+
+        // S'ouvre près du bouton ; une fois déplacée, la fenêtre se rouvre où on l'a laissée (dans l'écran).
+        function placerMenuSauvegardes() {
+            const el = document.getElementById('saved-grids-modal');
+            const etroit = window.innerWidth <= 640;
+            el.classList.toggle('sg-sheet', etroit);
+            if (etroit) { el.style.left = ''; el.style.top = ''; return; }
+            let pos = positionMenuSauvegardes;
+            if (!pos) {
+                const r = document.getElementById('btnSauvegardes').getBoundingClientRect();
+                pos = { left: r.left, top: r.bottom + 4 };
+            }
+            const left = Math.min(Math.max(0, pos.left), Math.max(0, window.innerWidth - el.offsetWidth));
+            const top = Math.min(Math.max(0, pos.top), Math.max(0, window.innerHeight - el.offsetHeight));
+            el.style.left = `${left}px`;
+            el.style.top = `${top}px`;
+        }
+
+        function lierMenuSauvegardes() {
+            if (menuSauvegardesLie) return;
+            menuSauvegardesLie = true;
+            const el = document.getElementById('saved-grids-modal');
+            const head = document.getElementById('saved-grids-modal-head');
+            head.addEventListener('pointerdown', (ev) => {
+                if (ev.button > 0 || (ev.target.closest && ev.target.closest('button'))) return;
+                if (el.classList.contains('sg-sheet')) return; // feuille du bas (téléphone) : non déplaçable
+                const r = el.getBoundingClientRect();
+                const dx = ev.clientX - r.left, dy = ev.clientY - r.top;
+                try { head.setPointerCapture(ev.pointerId); } catch (e) {}
+                el.classList.add('sg-dragging');
+                const move = (e) => {
+                    const left = Math.min(Math.max(0, e.clientX - dx), Math.max(0, window.innerWidth - el.offsetWidth));
+                    const top = Math.min(Math.max(0, e.clientY - dy), Math.max(0, window.innerHeight - el.offsetHeight));
+                    el.style.left = `${left}px`;
+                    el.style.top = `${top}px`;
+                    positionMenuSauvegardes = { left, top };
+                };
+                const up = () => {
+                    el.classList.remove('sg-dragging');
+                    head.removeEventListener('pointermove', move);
+                    head.removeEventListener('pointerup', up);
+                    head.removeEventListener('pointercancel', up);
+                    try { head.releasePointerCapture(ev.pointerId); } catch (e) {}
+                };
+                head.addEventListener('pointermove', move);
+                head.addEventListener('pointerup', up);
+                head.addEventListener('pointercancel', up);
+                ev.preventDefault();
+            });
+            window.addEventListener('resize', () => { if (!el.classList.contains('hidden')) placerMenuSauvegardes(); });
+            document.addEventListener('keydown', (ev) => {
+                if (ev.key !== 'Escape' || el.classList.contains('hidden')) return;
+                const t = ev.target;
+                if (t && t.closest && t.closest('input, textarea')) return; // laisse les champs de saisie gérer leur propre Échap
+                ev.stopPropagation();
+                fermerMenuSauvegardes();
+            }, true);
+        }
+
+        // La fenêtre reste ouverte pendant les actions ; la liste se met à jour d'elle-même.
+        function actionMenuSauvegardes(action) {
+            if (action === 'save') sauvegarderSous();
+            else if (action === 'update') mettreAJourSauvegarde();
+        }
+
+        function rendreMenuSauvegardes() {
+            const liste = document.getElementById('saved-grids-dropdown');
+            if (!liste) return;
+            liste.textContent = '';
+            const saved = lireSauvegardes();
+            const ajouter = (classe, texte, onclick) => {
+                const div = document.createElement('div');
+                div.className = classe;
+                const span = document.createElement('span');
+                span.className = 'sg-name';
+                span.textContent = texte;
+                div.appendChild(span);
+                div.addEventListener('click', onclick);
+                liste.appendChild(div);
+                return div;
+            };
+            if (nomGrilleChargee && saved[nomGrilleChargee]) {
+                ajouter('sg-item sg-action', `Sauvegarder « ${nomGrilleChargee} »`, () => actionMenuSauvegardes('update'));
+            }
+            ajouter('sg-item sg-action', '＋ Sauvegarder sous…', () => actionMenuSauvegardes('save'));
+            const sep = document.createElement('div');
+            sep.className = 'sg-sep';
+            liste.appendChild(sep);
+            const noms = Object.keys(saved);
+            if (noms.length === 0) {
+                const vide = document.createElement('div');
+                vide.className = 'sg-item sg-empty';
+                vide.textContent = 'Aucune grille sauvegardée';
+                liste.appendChild(vide);
+                return;
+            }
+            noms.forEach(nom => {
+                const ligne = ajouter('sg-item', nom, () => chargerGrilleSauvegardee(nom));
+                const del = document.createElement('span');
+                del.className = 'sg-del';
+                del.title = 'Supprimer';
+                del.textContent = '×';
+                del.addEventListener('click', (ev) => { ev.stopPropagation(); supprimerSauvegarde(nom); });
+                ligne.appendChild(del);
+            });
+        }
+
+        // --- Nom de la grille chargée (affiché au-dessus des dominos ; un clic permet de le renommer) ---
+        function majNomGrille() {
+            const lbl = document.getElementById('loaded-grid-name');
+            const inp = document.getElementById('grid-title-input');
+            const enSaisie = (document.activeElement === inp);
+            lbl.textContent = nomGrilleChargee || '';
+            lbl.hidden = !nomGrilleChargee || enSaisie;
+            if (!enSaisie) { inp.hidden = true; inp.value = nomGrilleChargee || ''; }
+            document.getElementById('saves-label').textContent = nomGrilleChargee || 'Sauvegardes';
+        }
+
+        function commencerRenommage() {
+            if (!nomGrilleChargee) return;
+            const inp = document.getElementById('grid-title-input');
+            document.getElementById('loaded-grid-name').hidden = true;
+            inp.hidden = false;
+            inp.value = nomGrilleChargee;
+            inp.focus();
+            inp.select();
+        }
+
+        // Valide le titre saisi. Si la grille est une sauvegarde, la sauvegarde est renommée avec elle.
+        function validerTitre(brut) {
+            const nom = String(brut || '').trim().slice(0, 60);
+            const ancien = nomGrilleChargee || null;
+            const inp = document.getElementById('grid-title-input');
+            inp.hidden = true;
+            const revenir = () => { inp.value = ancien || ''; majNomGrille(); };
+            if (!nom || nom === ancien) { revenir(); return; }
+            const saved = lireSauvegardes();
+            if (ancien && saved[ancien]) {
+                if (saved[nom] && !confirm(`Une grille « ${nom} » existe déjà dans les sauvegardes : la remplacer ?`)) { revenir(); return; }
+                const sortie = {};
+                Object.keys(saved).forEach(k => {
+                    if (k === ancien) sortie[nom] = saved[ancien];
+                    else if (k !== nom) sortie[k] = saved[k];
+                });
+                if (!ecrireSauvegardes(sortie)) { alert('Impossible de renommer la sauvegarde.'); revenir(); return; }
+            }
+            nomGrilleChargee = nom;
+            rendreMenuSauvegardes();
+            majNomGrille();
+        }
+
+        reglagesConnus = { style: document.getElementById('styleGamme').value, tonique: parseInt(document.getElementById('tonique').value, 10) || 0 };
+        majBoutonsAnnuler();
+    </script>
+
+    <script>
+        // Mode hors ligne : le service worker (sw.js) met l'application en cache après la première visite en ligne.
+        // Il ne fonctionne qu'en https ou sur localhost (pas en ouvrant le fichier directement).
+        if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch((err) => console.warn('Service worker indisponible :', err.message));
+            });
+        }
     </script>
 
 </body>

@@ -1,0 +1,17 @@
+{
+  "name": "Générateur de Dominos à Chanter",
+  "short_name": "Dominos",
+  "description": "Générateur de dominos à chanter : gammes, modes et styles, affichage en degrés, notes ou portée.",
+  "lang": "fr",
+  "start_url": "../index.html",
+  "scope": "../",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#1e1e1e",
+  "theme_color": "#282828",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
