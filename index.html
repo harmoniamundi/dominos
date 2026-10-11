@@ -404,8 +404,44 @@
             if (!numSpan) return;
             const scaleKey = getCardScaleKey(card);
             const nomGamme = SCALE_NAMES[scaleKey] || scaleKey;
-            numSpan.title = `Mode / Gamme : ${nomGamme}`;
+            numSpan.title = ''; // pas d'infobulle au survol : la gamme s'affiche au clic / à l'appui sur le numéro
+            numSpan.setAttribute('aria-label', `Domino ${numSpan.textContent} — ${nomGamme} (appuyer pour afficher le mode / la gamme)`);
+            if (card._bulleGamme) card._bulleGamme.textContent = nomGamme;
         }
+
+        // Un appui sur le numéro du domino affiche (ou masque) sa gamme / son mode dans une petite bulle.
+        // Fonctionne au toucher (téléphone), où l'infobulle au survol n'existe pas.
+        let bulleGammeTimer = null;
+        function masquerBullesGamme() {
+            clearTimeout(bulleGammeTimer);
+            bulleGammeTimer = null;
+            document.querySelectorAll('.domino-card').forEach(card => {
+                if (card._bulleGamme) {
+                    card._bulleGamme.remove();
+                    card._bulleGamme = null;
+                }
+            });
+        }
+
+        function basculerBulleGamme(card) {
+            const dejaOuverte = !!card._bulleGamme;
+            masquerBullesGamme();
+            if (dejaOuverte) return;
+            const scaleKey = getCardScaleKey(card);
+            const bulle = document.createElement('div');
+            bulle.className = 'domino-scale-bubble';
+            bulle.setAttribute('role', 'status');
+            bulle.textContent = SCALE_NAMES[scaleKey] || scaleKey;
+            card.appendChild(bulle);
+            card._bulleGamme = bulle;
+            bulleGammeTimer = setTimeout(masquerBullesGamme, 4000);
+        }
+
+        // Toucher / cliquer ailleurs referme la bulle (phase de capture : les dominos arrêtent la propagation des clics).
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest || e.target.closest('.domino-number')) return;
+            masquerBullesGamme();
+        }, true);
 
         function createReverbBuffer(ctx) {
             const rate = ctx.sampleRate;
@@ -1358,7 +1394,7 @@
         function creerDominoElement(degres, index, scaleKey, rythmes) {
             const card = document.createElement('div');
             card.className = 'domino-card';
-            card.title = 'Cliquer sur une note pour l\'écouter\nCliquer hors d\'une note pour écouter tout le domino\nDouble-clic pour réinitialiser\nClic droit pour supprimer';
+            card.title = 'Cliquer sur le numéro pour afficher sa gamme / son mode\nCliquer sur une note pour l\'écouter\nCliquer hors d\'une note pour écouter tout le domino\nDouble-clic pour réinitialiser\nClic droit pour supprimer';
             card._degres = degres;
             card._scaleKey = scaleKey;
             card._rythmes = rythmes;
@@ -1367,6 +1403,14 @@
             const numSpan = document.createElement('span');
             numSpan.className = 'domino-number';
             numSpan.textContent = index + 1;
+            numSpan.setAttribute('role', 'button');
+            numSpan.tabIndex = 0;
+            const surNumero = (e) => { e.stopPropagation(); };
+            numSpan.addEventListener('click', (e) => { e.stopPropagation(); basculerBulleGamme(card); });
+            numSpan.addEventListener('dblclick', surNumero); // un double appui ne doit pas réinitialiser le domino
+            numSpan.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); basculerBulleGamme(card); }
+            });
             card.appendChild(numSpan);
 
             mettreAJourInfoBulle(card);
