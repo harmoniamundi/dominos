@@ -141,7 +141,14 @@
             </div>
             <div class="creation-modal-info" id="creationModalInfo"></div>
             <label for="creationDegreesInput" class="creation-degrees-label">Degrés à afficher, dans l’ordre :</label>
-            <input type="text" id="creationDegreesInput" class="creation-degrees-input" placeholder="Ex. 13361751+" autocomplete="off">
+            <input type="text" id="creationDegreesInput" class="creation-degrees-input" placeholder="Ex. 13361751+ ou 5-13211" autocomplete="off">
+            <div class="creation-degrees-help">
+                <strong>-</strong> après un chiffre : l’octave en dessous (<strong>5-</strong> = V grave) ·
+                <strong>1+</strong> = I de l’octave au-dessus (le plus aigu possible).<br>
+                Quand un degré passe sous le I, une <span class="help-barre">barre jaune</span> marque le degré I.
+                L’écart entre le degré le plus grave et le plus aigu ne peut pas dépasser une octave.
+            </div>
+            <div id="creationModalError" class="creation-degrees-error" role="alert" hidden></div>
             <div class="creation-modal-actions">
                 <button type="button" class="btn-modal" onclick="fermerPopupCreation()">Annuler</button>
                 <button type="button" class="btn-modal btn-modal-primary" onclick="creerDominoSurMesure()">Créer</button>
@@ -281,7 +288,16 @@
             [1, 3, 5, 7, 8],
             [8, 5, 8, 3, 2, 1],
             [3, 8, 7, 8, 5],
-            [8, 6, 4, 2, 5, 1]
+            [8, 6, 4, 2, 5, 1],
+            // Dominos à barre jaune (degrés sous la tonique : 0 = VII-, -1 = VI-, -2 = V-, -3 = IV-)
+            [1, 0, 2, 1],                  // 17-21
+            [-2, 1, 0, 2, 1],              // 5-17-21
+            [1, 0, -1, -2, 4, 3, 2, 1],    // 17-6-5-4321
+            [1, 0, -1, 0, 1, 3, 2],        // 17-6-7-132
+            [4, 6, 5, 4, 2, 0, 1],         // 465427-1
+            [3, 1, -2, 4, 2, 3],           // 315-423
+            [-2, 0, 2, 4, 3, 2, 1],        // 5-7-24321
+            [-2, 1, 3, 2, 1]               // 5-1321
         ];
 
         const SCALE_NAMES = {
@@ -485,6 +501,28 @@
         // Après 20 essais on transpose le motif le long de la gamme, après 50 on change la première note, après 100 une note au hasard en plus ;
         // au bout de MAX_ESSAIS_UNICITE essais, on accepte un doublon plutôt que de bloquer la page.
         const MAX_ESSAIS_UNICITE = 500;
+        // Dans une série générée, les NB_DOMINOS_AVEC_BARRE derniers dominos descendent sous la tonique :
+        // ils contiennent au moins un degré sous le I, donc la barre jaune. Les deux premiers dominos (gamme montante
+        // et descendante), le mode Apprentissage (liste fixe) et les grilles trop courtes ne sont pas concernés.
+        const NB_DOMINOS_AVEC_BARRE = 7;
+        function doitContenirBarre(index, total) {
+            return !modeApprentissageActif && index >= 2 && total >= 2 * NB_DOMINOS_AVEC_BARRE && index >= total - NB_DOMINOS_AVEC_BARRE;
+        }
+
+        // Transpose le motif entier vers le bas le long de la gamme (une « séquence ») pour qu'il passe sous la tonique.
+        // Le décalage est choisi pour qu'au moins un degré soit sous le I (degré ≤ 0) et qu'au moins un reste au I ou au-dessus :
+        // la barre jaune se trouve alors au milieu du domino, et non à côté de notes qui sont toutes en dessous.
+        // Le motif tenait dans l'octave I → I : une fois décalé il tient dans une fenêtre d'une octave, donc l'amplitude
+        // reste valide, et le degré le plus grave est au pire le I de l'octave en dessous.
+        function descendreSousTonique(degres, scaleLen) {
+            const mn = Math.min(...degres);
+            const mx = Math.max(...degres);
+            const decalageMin = mn;                              // le degré le plus grave passe à 0 (VII-)
+            const decalageMax = Math.min(mx - 1, mn + scaleLen - 1); // le plus aigu reste au moins au I ; le plus grave au pire à 1-
+            const decalage = (decalageMax >= decalageMin) ? getRandomInt(decalageMin, decalageMax) : decalageMin;
+            return degres.map(d => d - decalage);
+        }
+
         function varierPourUnicite(degres, attempts, maxDeg) {
             // 1) d'abord on transpose le motif entier le long de la gamme (une « séquence », procédé idiomatique)
             if (attempts > 20) {
@@ -700,6 +738,7 @@
                         ajust = mefifierAjusterEighthsStrict(motifRythmique, tempDegres);
                         
                         varierPourUnicite(ajust.degres, attempts, maxDegDisplay);
+                        if (doitContenirBarre(index, cards.length)) ajust.degres = descendreSousTonique(ajust.degres, scaleLen);
                         vSig = getVisualSignature(scaleKey, ajust.degres, ajust.rythmes, affichageMode);
                         attempts++;
                     } while (existingVisualSignatures.has(vSig) && attempts < MAX_ESSAIS_UNICITE);
@@ -804,13 +843,35 @@
             'chromatique': [[1,''],[2,'♭'],[2,''],[3,'♭'],[3,''],[4,''],[4,'♯'],[5,''],[6,'♭'],[6,''],[7,'♭'],[7,'']]
         };
 
+        // Plage de degrés acceptée pour un domino. 1 = tonique, scaleLen + 1 = I de l'octave supérieure (« 1+ »),
+        // qui est le plus haut possible. 0, -1, -2… sont les degrés sous la tonique (VII-, VI-, V-…),
+        // jusqu'au I de l'octave en dessous (« 1- », degré 1 - scaleLen).
+        function plageDegres(scaleLen) {
+            return { min: 1 - scaleLen, max: scaleLen + 1 };
+        }
+
+        // Règle de l'amplitude : l'écart entre le degré le plus grave et le plus aigu ne dépasse jamais une octave
+        // (7 positions graphiques), comme dans un domino ordinaire I → I. Ainsi, quand la barre jaune existe,
+        // le domino n'est pas plus « étalé » qu'un domino ordinaire : les positions relatives restent celles d'habitude.
+        function amplitudeValide(degres, scaleKey, scaleLen) {
+            const aff = degres.map(d => getDegreAffichage(scaleKey, d, scaleLen));
+            if (!aff.length) return true;
+            const positions = aff.map(a => a.pos);
+            return (Math.max(...positions) - Math.min(...positions)) <= aff[0].diviseur;
+        }
+
+        // Modulo toujours positif (le « % » de JavaScript renvoie un résultat négatif pour les degrés sous la tonique)
+        function modPositif(n, m) {
+            return ((n % m) + m) % m;
+        }
+
         // Retourne l'étiquette du degré et sa hauteur (0 = tonique) dans le domino, ainsi que le diviseur vertical
         function getDegreAffichage(scaleKey, degre, scaleLen) {
             const table = DEGREES_HEPTA[scaleKey];
             if (!table) {
                 return { texte: toRoman(degre, scaleLen), pos: degre - 1, diviseur: scaleLen };
             }
-            const idx = (degre - 1) % table.length;
+            const idx = modPositif(degre - 1, table.length);
             const octave = Math.floor((degre - 1) / table.length);
             const [num, alt] = table[idx];
             return {
@@ -821,7 +882,7 @@
         }
 
         function toRoman(degre, scaleLen = 7) {
-            const scaleDegre = ((degre - 1) % scaleLen) + 1;
+            const scaleDegre = modPositif(degre - 1, scaleLen) + 1;
             const map = [[10, 'X'], [9, 'IX'], [8, 'VIII'], [7, 'VII'], [6, 'VI'], [5, 'V'], [4, 'IV'], [3, 'III'], [2, 'II'], [1, 'I']];
             let res = '';
             let n = scaleDegre;
@@ -840,7 +901,7 @@
             const tonicIndex = parseInt(document.getElementById('tonique').value) || 0;
             const root = TONIC_ROOTS[tonicIndex] || { letter: 0, pitch: 0 };
 
-            const scaleIndex = (degre - 1) % scale.length;
+            const scaleIndex = modPositif(degre - 1, scale.length);
             const octaveOffset = Math.floor((degre - 1) / scale.length);
 
             let letterStep = scaleIndex;
@@ -968,7 +1029,7 @@
             const scale = (degres && degres.length > 0) ? getNoteScale(card, degres, index) : getCardScale(card);
 
             const octave = Math.floor((degre - 1) / scale.length);
-            const scaleIndex = (degre - 1) % scale.length;
+            const scaleIndex = modPositif(degre - 1, scale.length);
             const semitone = tonicOffset + transOffset + scale[scaleIndex] + (octave * 12);
 
             const rootFreq = 261.63;
@@ -1168,6 +1229,42 @@
             }
 
             return degres;
+        }
+
+        // Mise en page d'un domino en mode « Degrés / Notes / Lettres » (utilisée pour le dessin ET pour le clic).
+        // Quand tous les degrés sont dans l'octave I → I, la page est inchangée : I en bas, I de l'octave en haut.
+        // Dès qu'un degré passe sous la tonique, le bas du domino n'est plus la tonique : on étend l'échelle verticale
+        // vers le bas pour que tous les degrés tiennent, et une barre jaune marque la hauteur du degré I.
+        // Vers le haut, rien ne dépasse le I de l'octave supérieure (« 1+ »).
+        const COULEUR_BARRE_TONIQUE = '#EDD155';
+        function disposerDominoDegres(degres, scaleKey, scaleLen, w, h) {
+            const paddingX = 24;
+            const paddingTop = 40;
+            const paddingBottom = 25;
+            const widthUsable = w - (paddingX * 2);
+            const heightUsable = h - paddingTop - paddingBottom;
+            const nNotes = degres.length;
+
+            const aff = degres.map(d => getDegreAffichage(scaleKey, d, scaleLen));
+            const diviseur = aff.length ? aff[0].diviseur : scaleLen;
+            const hors = degres.some(d => d < 1);
+
+            let bas = 0;
+            let haut = diviseur;
+            if (hors) {
+                const positions = aff.map(a => a.pos);
+                bas = Math.min(0, ...positions);
+                haut = Math.max(0, bas + diviseur, ...positions);
+            }
+            // Pas d'un degré à l'autre : celui d'origine tant que ça tient, sinon on resserre
+            const pas = Math.min(heightUsable / diviseur, heightUsable / (haut - bas));
+            const yDe = pos => (h - paddingBottom) - ((pos - bas) * pas);
+
+            const stepX = widthUsable / Math.max(1, nNotes - 1);
+            return {
+                points: aff.map((a, i) => ({ x: paddingX + (i * stepX), y: yDe(a.pos), texte: a.texte })),
+                barre: hors ? { y: yDe(0), hauteur: Math.max(pas, 18) } : null
+            };
         }
 
         function dessinerDominoCanvas(canvas, degres, card) {
@@ -1431,36 +1528,33 @@
                 });
 
             } else {
-                const paddingX = 24;
-                const paddingTop = 40;
-                const paddingBottom = 25;
-                const widthUsable = w - (paddingX * 2);
-                const heightUsable = h - paddingTop - paddingBottom;
-
                 const fontSize = Math.max(8, Math.min((modeAffichage === 'notes' || modeAffichage === 'lettres') ? 11 : 13, Math.floor(120 / Math.max(nNotes, 5))));
+                const scaleKeyDessin = getCardScaleKey(card);
+                const mise = disposerDominoDegres(degres, scaleKeyDessin, scaleLen, w, h);
+
+                // Barre jaune du degré I : dessinée en premier, d'un bord à l'autre du domino, sous les chiffres
+                if (mise.barre) {
+                    ctx.fillStyle = COULEUR_BARRE_TONIQUE;
+                    ctx.fillRect(0, mise.barre.y - (mise.barre.hauteur / 2), w, mise.barre.hauteur);
+                }
+
                 ctx.font = `600 ${fontSize}px Arial, sans-serif`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillStyle = '#000000';
 
-                const scaleKeyDessin = getCardScaleKey(card);
-
                 degres.forEach((degre, i) => {
-                    const stepX = widthUsable / Math.max(1, nNotes - 1);
-                    const x = paddingX + (i * stepX);
-                    const affDeg = getDegreAffichage(scaleKeyDessin, degre, scaleLen);
-                    const y = (h - paddingBottom) - (affDeg.pos * (heightUsable / affDeg.diviseur));
-
+                    const p = mise.points[i];
                     let texte = '';
                     if (modeAffichage === 'notes') {
                         texte = getNoteInfo(degre, card, false, i, degres).name;
                     } else if (modeAffichage === 'lettres') {
                         texte = getNoteInfo(degre, card, true, i, degres).name;
                     } else {
-                        texte = affDeg.texte;
+                        texte = p.texte;
                     }
 
-                    ctx.fillText(texte, x, y);
+                    ctx.fillText(texte, p.x, p.y);
                 });
             }
         }
@@ -1562,22 +1656,10 @@
                             });
                         }
                     } else {
-                        const w = 180;
-                        const h = 230;
-                        const paddingX = 24;
-                        const paddingTop = 40;
-                        const paddingBottom = 25;
-                        const widthUsable = w - (paddingX * 2);
-                        const heightUsable = h - paddingTop - paddingBottom;
-                        const scaleKeyClic = getCardScaleKey(card);
+                        const mise = disposerDominoDegres(card._degres, getCardScaleKey(card), scaleLen, 180, 230);
 
-                        card._degres.forEach((degre, i) => {
-                            const stepX = widthUsable / Math.max(1, nNotes - 1);
-                            const x = paddingX + (i * stepX);
-                            const affDeg = getDegreAffichage(scaleKeyClic, degre, scaleLen);
-                            const y = (h - paddingBottom) - (affDeg.pos * (heightUsable / affDeg.diviseur));
-
-                            if (Math.abs(clickX - x) < 18 && Math.abs(clickY - y) < 15) {
+                        mise.points.forEach((p, i) => {
+                            if (Math.abs(clickX - p.x) < 18 && Math.abs(clickY - p.y) < 15) {
                                 noteIndexClic = i;
                             }
                         });
@@ -1658,6 +1740,7 @@
                     }
 
                     varierPourUnicite(newDegres, attempts, maxDegDisplay);
+                    if (doitContenirBarre(currentIndex, cards.length)) newDegres = descendreSousTonique(newDegres, scaleLen);
                     vSig = getVisualSignature(newScaleKey, newDegres, newRythmes, affichageMode);
                     attempts++;
                 } while (existingVisualSignatures.has(vSig) && attempts < MAX_ESSAIS_UNICITE);
@@ -1762,6 +1845,7 @@
                         }
                     }
                     varierPourUnicite(degres, attempts, maxDegDisplay);
+                    if (doitContenirBarre(i, total)) degres = descendreSousTonique(degres, scaleLen);
                     vSig = getVisualSignature(scaleKey, degres, rythmes, affichageMode);
                     attempts++;
                 } while (existingVisualSignatures.has(vSig) && attempts < MAX_ESSAIS_UNICITE);
@@ -1791,6 +1875,10 @@
             let degres = [];
             let vSig = '';
             let attempts = 0;
+            // Un domino ajouté a une chance sur sept de descendre sous la tonique (donc d'avoir la barre jaune) :
+            // le tirage est fait une seule fois, pas à chaque essai de la recherche d'un domino inédit.
+            // Pas pour les deux premières places (gammes) ni en mode Apprentissage.
+            const avecBarre = !modeApprentissageActif && nextIndex >= 2 && Math.random() < 1 / NB_DOMINOS_AVEC_BARRE;
 
             do {
                 let motifRythmique = modeRythmiqueActif ? RHYTHM_CELLS_8_EIGHTHS[getRandomInt(0, RHYTHM_CELLS_8_EIGHTHS.length - 1)] : ['N', 'N', 'N', 'N'];
@@ -1800,6 +1888,7 @@
                 degres = ajust.degres;
 
                 varierPourUnicite(degres, attempts, maxDegDisplay);
+                if (avecBarre) degres = descendreSousTonique(degres, scaleLen);
                 vSig = getVisualSignature(scaleKey, degres, rythmes, affichageMode);
                 attempts++;
             } while (existingVisualSignatures.has(vSig) && attempts < MAX_ESSAIS_UNICITE);
@@ -1845,6 +1934,7 @@
                 `<strong>Tonique :</strong> ${nomTonique}`;
 
             document.getElementById('creationDegreesInput').value = '';
+            document.getElementById('creationModalError').hidden = true;
 
             const modal = document.getElementById('creationModal');
             modal.dataset.scaleKey = scaleKey;
@@ -1871,18 +1961,41 @@
             const cards = Array.from(grid.getElementsByClassName('domino-card'));
             const scaleKey = modal.dataset.scaleKey || getScaleKeyPourCreation(cards.length);
             const scale = GAMMES[scaleKey] || GAMMES['maj'];
-            const maxDegre = scale.length + 1;
+            const scaleLen = scale.length;
+            const plage = plageDegres(scaleLen);
+            // Saisie : un chiffre = un degré de la gamme ; chaque « - » qui le suit le descend d'une octave
+            // (« 5- » = le V de l'octave en dessous) ; « 1+ » = le I de l'octave au-dessus, le plus haut possible
+            // (un autre degré suivi de « + » dépasserait ce I aigu : il est ignoré).
             const tokens = [];
+            let erreur = '';
             for (let i = 0; i < valeur.length && tokens.length < 9; i++) {
-                const caractere = valeur[i];
-                if (caractere === '1' && valeur[i + 1] === '+') {
-                    tokens.push(maxDegre);
+                if (!/[1-9]/.test(valeur[i])) continue;
+                const debut = i;
+                const base = parseInt(valeur[i], 10);
+                let degre = base;
+                while (i + 1 < valeur.length && /[+\-−–]/.test(valeur[i + 1])) {
+                    degre += (valeur[i + 1] === '+') ? scaleLen : -scaleLen;
                     i++;
-                } else if (/[1-9]/.test(caractere)) {
-                    tokens.push(parseInt(caractere, 10));
                 }
+                // le chiffre lui-même doit exister dans la gamme (8 = octave pour une gamme de 7 notes)
+                if (base > scaleLen + 1) continue;
+                if (degre < plage.min || degre > plage.max) {
+                    erreur = `« ${valeur.slice(debut, i + 1)} » est impossible : le degré le plus aigu est 1+ (le I de l’octave au-dessus) et le plus grave est 1- (le I de l’octave en dessous).`;
+                    break;
+                }
+                tokens.push(degre);
             }
-            const degres = tokens.filter(d => d >= 1 && d <= maxDegre);
+            const degres = tokens;
+
+            if (!erreur && degres.length && !amplitudeValide(degres, scaleKey, scaleLen)) {
+                erreur = 'Amplitude trop grande : l’écart entre le degré le plus grave et le plus aigu ne peut pas dépasser une octave (par exemple 5-1321 est possible, 5-7 ne l’est pas).';
+            }
+            if (erreur) {
+                const zone = document.getElementById('creationModalError');
+                zone.textContent = erreur;
+                zone.hidden = false;
+                return;
+            }
 
             if (!degres.length) return;
 
@@ -1957,6 +2070,7 @@
                     }
 
                     varierPourUnicite(degres, attempts, maxDegDisplay);
+                    if (doitContenirBarre(index, cards.length)) degres = descendreSousTonique(degres, scaleLen);
                     vSig = getVisualSignature(scaleKey, degres, rythmes, affichageMode);
                     attempts++;
                 } while (existingVisualSignatures.has(vSig) && attempts < MAX_ESSAIS_UNICITE);
@@ -1974,6 +2088,10 @@
 
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') fermerPopupCreation();
+        });
+
+        document.getElementById('creationDegreesInput').addEventListener('input', () => {
+            document.getElementById('creationModalError').hidden = true;
         });
 
         document.getElementById('creationModal').addEventListener('click', (e) => {
@@ -2259,10 +2377,11 @@
             for (const item of brut) {
                 if (!item || typeof item !== 'object') return null;
                 const scaleKey = (typeof item.scaleKey === 'string' && aPropre(GAMMES, item.scaleKey)) ? item.scaleKey : 'maj';
-                const maxDegre = GAMMES[scaleKey].length + 1;
+                const plage = plageDegres(GAMMES[scaleKey].length);
                 if (!Array.isArray(item.degres) || item.degres.length < 1 || item.degres.length > 16) return null;
                 const degres = item.degres.map(Number);
-                if (!degres.every(n => Number.isInteger(n) && n >= 1 && n <= maxDegre)) return null;
+                if (!degres.every(n => Number.isInteger(n) && n >= plage.min && n <= plage.max)) return null;
+                if (!amplitudeValide(degres, scaleKey, GAMMES[scaleKey].length)) return null;
                 const rythmesValides = Array.isArray(item.rythmes) && item.rythmes.length === degres.length &&
                     item.rythmes.every(r => typeof r === 'string' && aPropre(RHYTHM_EIGHTH_VALUES, r));
                 propres.push({
