@@ -6,7 +6,7 @@
    - La police Google « Patrick Hand » (altérations ♯ ♭ de la portée) est mise en cache elle aussi.
    Pour forcer une mise à jour du cache après une publication, incrémenter VERSION. */
 
-const VERSION = 'dominos-v13';
+const VERSION = 'dominos-v15';
 const CACHE_APP = `${VERSION}-app`;
 const CACHE_FONTS = `${VERSION}-fonts`;
 

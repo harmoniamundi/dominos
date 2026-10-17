@@ -40,12 +40,14 @@
                     <option value="scale_penta_maj">Pentatonique majeure</option>
                     <option value="scale_penta_min">Pentatonique mineure</option>
                     <option value="scale_blues_min">Blues mineure</option>
+                    <option value="scale_blues_maj">Blues majeure</option>
                     <option value="scale_par_ton">Gamme par ton</option>
                     <option value="scale_dim_dt_t">Diminuée (Demi-ton / Ton)</option>
                     <option value="scale_bebop_dom">Bebop Dominant</option>
                     <option value="scale_chromatique">Chromatique</option>
                 </optgroup>
                 <optgroup label="--- Styles musicaux ---">
+                    <option value="aleatoire">Aléatoire (tous les modes)</option>
                     <option value="solfege">Solfège (Idiomatique)</option>
                     <option value="bach">Bach (Baroque & Contrepoint)</option>
                     <option value="piazzolla">Piazzolla (Tango)</option>
@@ -139,7 +141,14 @@
                 <h2 id="creationModalTitle">Créer un domino</h2>
                 <button type="button" class="modal-close" onclick="fermerPopupCreation()" title="Fermer (Échap)" aria-label="Fermer"><svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
             </div>
-            <div class="creation-modal-info" id="creationModalInfo"></div>
+            <div class="creation-modal-info" id="creationModalInfo">
+                <div id="creationModeFixe"><strong>Gamme :</strong> <span id="creationModeNom"></span></div>
+                <div id="creationModeChoix" class="creation-mode-choix" hidden>
+                    <label for="creationModeSelect"><strong>Mode :</strong></label>
+                    <select id="creationModeSelect" class="creation-mode-select" onchange="changerModeCreation()" aria-label="Mode du domino à créer"></select>
+                </div>
+                <div><strong>Tonique :</strong> <span id="creationTonique"></span></div>
+            </div>
             <label for="creationDegreesInput" class="creation-degrees-label">Degrés à afficher, dans l’ordre :</label>
             <input type="text" id="creationDegreesInput" class="creation-degrees-input" placeholder="Ex. 13361751+ ou 5-13211" autocomplete="off">
             <div class="creation-degrees-help">
@@ -387,7 +396,7 @@
             'penta_maj': [0, 1, 2, 4, 5],
             'penta_min': [0, 2, 3, 4, 6],
             'blues_min': [0, 2, 3, 3, 4, 6],
-            'blues_maj': [0, 2, 3, 4, 7, 9],
+            'blues_maj': [0, 1, 2, 2, 4, 5],
             'bebop_dom': [0, 1, 2, 3, 4, 5, 5, 6],
             'chromatique': [0,0,1,1,2,2,3,3,4,5,5,6],
             'altere': [0, 1, 2, 3, 4, 5, 6]
@@ -811,24 +820,36 @@
                 }
                 return key;
             }
-            const palettes = {
-                'solfege': ['maj'],
-                'bach': ['maj', 'min_har', 'min_mel'],
-                'piazzolla': ['min_har', 'min_nat'],
-                'boulez': ['altere', 'dim_dt_t', 'par_ton'],
-                'jazz_standards': ['dorien', 'lydien', 'mixolydien', 'maj'],
-                'chet_baker': ['dorien', 'penta_min', 'min_nat'],
-                'coltrane': ['penta_maj', 'dim_dt_t', 'lydien', 'bebop_dom'],
-                'ravel': ['dorien', 'lydien', 'mixolydien', 'dim_dt_t', 'penta_maj'],
-                'debussy': ['par_ton', 'penta_maj', 'dorien', 'lydien'],
-                'bebop': ['bebop_dom'],
-                'atonal': ['chromatique']
-            };
-            const palette = palettes[styleVal] || ['maj'];
-            if ((index === 0 || index === 1) && !modeApprentissageActif) {
+            const palette = modesDuStyle(styleVal);
+            // Aléatoire : les deux premiers dominos (gammes) tirent eux aussi leur mode au hasard
+            if ((index === 0 || index === 1) && !modeApprentissageActif && styleVal !== 'aleatoire') {
                 return palette[0];
             }
             return palette[getRandomInt(0, palette.length - 1)];
+        }
+
+        // Modes utilisés par chaque style musical (le premier est le mode « principal » du style).
+        const PALETTES_STYLES = {
+            'solfege': ['maj'],
+            'bach': ['maj', 'min_har', 'min_mel'],
+            'piazzolla': ['min_har', 'min_nat'],
+            'boulez': ['altere', 'dim_dt_t', 'par_ton'],
+            'jazz_standards': ['dorien', 'lydien', 'mixolydien', 'maj'],
+            'chet_baker': ['dorien', 'penta_min', 'min_nat'],
+            'coltrane': ['penta_maj', 'dim_dt_t', 'lydien', 'bebop_dom'],
+            'ravel': ['dorien', 'lydien', 'mixolydien', 'dim_dt_t', 'penta_maj'],
+            'debussy': ['par_ton', 'penta_maj', 'dorien', 'lydien'],
+            'bebop': ['bebop_dom'],
+            'atonal': ['chromatique'],
+            // Aléatoire : tous les modes de l'application (les 17 du menu + la gamme altérée, utilisée par Boulez), dans l'ordre du menu
+            'aleatoire': ['maj', 'min_nat', 'min_har', 'min_mel', 'dorien', 'phrygien', 'lydien', 'mixolydien', 'locrien',
+                          'penta_maj', 'penta_min', 'blues_min', 'blues_maj', 'par_ton', 'dim_dt_t', 'bebop_dom', 'chromatique', 'altere']
+        };
+
+        // Liste des modes que peut prendre un domino pour le style choisi : un seul pour une gamme / un mode pur
+        function modesDuStyle(styleVal) {
+            if (styleVal.startsWith('scale_')) return [styleVal.replace('scale_', '')];
+            return PALETTES_STYLES[styleVal] || ['maj'];
         }
 
         // Gammes non heptatoniques : degrés nommés d'après la gamme majeure (num = degré I..VII, alt = altération)
@@ -1156,7 +1177,8 @@
                 }
             }
 
-            let styleCheck = styleVal.startsWith('scale_') ? 'solfege' : styleVal;
+            // Gammes pures et Aléatoire : le mode est déjà fixé pour chaque domino, les motifs sont ceux du solfège
+            let styleCheck = (styleVal.startsWith('scale_') || styleVal === 'aleatoire') ? 'solfege' : styleVal;
 
             switch(styleCheck) {
                 case 'bach':
@@ -1915,30 +1937,53 @@
             return position - 1;
         }
 
-        function getScaleKeyPourCreation(index) {
+        // Mode choisi pour la création, gardé tant que le style ne change pas (pour enchaîner plusieurs dominos du même mode)
+        let dernierModeCreation = null;
+
+        // Mode du domino à créer : celui choisi dans la fenêtre si le style en propose plusieurs, sinon l'unique mode du style
+        function getScaleKeyPourCreation() {
             const styleVal = document.getElementById('styleGamme').value || 'scale_maj';
-            return assignScaleForDomino(styleVal, index);
+            const modes = modesDuStyle(styleVal);
+            const choix = document.getElementById('creationModeSelect').value;
+            return (modes.length > 1 && modes.includes(choix)) ? choix : modes[0];
+        }
+
+        function changerModeCreation() {
+            const styleVal = document.getElementById('styleGamme').value || 'scale_maj';
+            dernierModeCreation = { style: styleVal, mode: document.getElementById('creationModeSelect').value };
+            document.getElementById('creationModalError').hidden = true;
         }
 
         function ouvrirPopupCreation() {
-            const grid = document.getElementById('grid');
-            const cards = Array.from(grid.getElementsByClassName('domino-card'));
-            const index = cards.length;
-            const scaleKey = getScaleKeyPourCreation(index);
+            const styleVal = document.getElementById('styleGamme').value || 'scale_maj';
+            const modes = modesDuStyle(styleVal);
             const tonalite = document.getElementById('tonique');
-            const nomGamme = SCALE_NAMES[scaleKey] || scaleKey;
             const nomTonique = tonalite.options[tonalite.selectedIndex]?.text || '';
 
-            document.getElementById('creationModalInfo').innerHTML =
-                `<strong>Gamme :</strong> ${nomGamme}<br>` +
-                `<strong>Tonique :</strong> ${nomTonique}`;
+            // Un style qui mélange plusieurs modes : on choisit ici celui du domino. Gamme / mode pur : un seul mode, affiché tel quel.
+            const plusieurs = modes.length > 1;
+            const select = document.getElementById('creationModeSelect');
+            select.textContent = '';
+            if (plusieurs) {
+                modes.forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = m;
+                    opt.textContent = SCALE_NAMES[m] || m;
+                    select.appendChild(opt);
+                });
+                const memo = dernierModeCreation && dernierModeCreation.style === styleVal && modes.includes(dernierModeCreation.mode);
+                select.value = memo ? dernierModeCreation.mode : modes[0];
+            } else {
+                document.getElementById('creationModeNom').textContent = SCALE_NAMES[modes[0]] || modes[0];
+            }
+            document.getElementById('creationModeChoix').hidden = !plusieurs;
+            document.getElementById('creationModeFixe').hidden = plusieurs;
+            document.getElementById('creationTonique').textContent = nomTonique;
 
             document.getElementById('creationDegreesInput').value = '';
             document.getElementById('creationModalError').hidden = true;
 
             const modal = document.getElementById('creationModal');
-            modal.dataset.scaleKey = scaleKey;
-            modal.dataset.index = index;
             modal.classList.add('open');
             modal.setAttribute('aria-hidden', 'false');
             setTimeout(() => document.getElementById('creationDegreesInput').focus(), 0);
@@ -1952,14 +1997,13 @@
         }
 
         function creerDominoSurMesure() {
-            const modal = document.getElementById('creationModal');
             const valeur = document.getElementById('creationDegreesInput').value.trim();
             if (!valeur) return;
 
             stopCurrentPlayback();
             const grid = document.getElementById('grid');
             const cards = Array.from(grid.getElementsByClassName('domino-card'));
-            const scaleKey = modal.dataset.scaleKey || getScaleKeyPourCreation(cards.length);
+            const scaleKey = getScaleKeyPourCreation();
             const scale = GAMMES[scaleKey] || GAMMES['maj'];
             const scaleLen = scale.length;
             const plage = plageDegres(scaleLen);
@@ -2015,7 +2059,9 @@
             const styleVal = document.getElementById('styleGamme').value || 'scale_maj';
 
             Array.from(cards).forEach((card, index) => {
-                const scaleKey = assignScaleForDomino(styleVal, index);
+                // Le mode de chaque domino a déjà été tiré à sa création : on le garde (sinon changer la tonalité ou
+                // l'affichage re-tirerait les modes des styles à plusieurs modes, sans refaire les notes)
+                const scaleKey = card._scaleKey || assignScaleForDomino(styleVal, index);
                 card._scaleKey = scaleKey;
                 card._isFirstTwo = modeApprentissageActif ? false : (index < 2);
                 const canvas = card.querySelector('canvas');
