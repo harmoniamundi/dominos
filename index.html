@@ -1,2750 +1,910 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Générateur de Dominos à Chanter</title>
-    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAALElEQVQ4jWNgGAWDEv7//89g586d/x8+fPifgZGBgYGBgcf///9nAAAXKQu9w5L71AAAAABJRU5ErkJggg==">
-    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
-    <meta name="theme-color" content="#282828">
-    <link rel="manifest" href="app/manifest.webmanifest">
-    <link rel="apple-touch-icon" href="app/apple-touch-icon.png">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="Dominos">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <link rel="stylesheet" href="app/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Tempus fugit</title>
+<meta name="theme-color" content="#000000">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Tempus fugit">
+<link rel="manifest" href="app/manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="app/icon-192.png">
+<link rel="apple-touch-icon" href="app/apple-touch-icon.png">
+<link rel="stylesheet" href="app/style.css">
 </head>
 <body>
 
-    <audio id="silent-unlock" loop playsinline src="data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//OEAAAAAAAAAAAAAAAAAAAAAAA="></audio>
+<div class="metronome-wrapper" id="metronomeWrapper">
+  <svg class="body-svg" viewBox="0 0 350 590">
+    <defs>
+      <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#1e1f25"/>
+        <stop offset="60%" stop-color="#0c0d10"/>
+        <stop offset="100%" stop-color="#040405"/>
+      </linearGradient>
+      <linearGradient id="silverBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#ffffff"/>
+        <stop offset="25%" stop-color="#777777"/>
+        <stop offset="50%" stop-color="#222222"/>
+        <stop offset="100%" stop-color="#cccccc"/>
+      </linearGradient>
+    </defs>
+    <path d="M 115,14 C 150,6 200,6 235,14 C 258,19 270,32 277,52 L 335,498 C 345,532 328,565 292,576 C 230,587 120,587 58,576 C 22,565 5,532 15,498 L 73,52 C 80,32 92,19 115,14 Z" 
+          fill="url(#bodyGrad)" stroke="url(#silverBorder)" stroke-width="3" stroke-linejoin="round"/>
+  </svg>
 
-    <header class="app-header">
-        <span class="app-title">Générateur de Dominos à Chanter</span>
-    </header>
+  <div class="metronome-content">
+    <div class="scale-ladder" id="scaleLadder"></div>
 
-    <main class="app-main">
-    <div class="controls">
-        <div class="controls-row">
-            <select id="styleGamme" class="select-style" onchange="rafraichirGrille()" title="Mode / Style" aria-label="Mode / Style">
-                <optgroup label="--- Gammes et Modes pures ---">
-                    <option value="scale_maj" selected>Gamme Majeure (Ionien)</option>
-                    <option value="scale_min_nat">Mineure naturelle (Éolien)</option>
-                    <option value="scale_min_har">Mineure harmonique</option>
-                    <option value="scale_min_mel">Mineure mélodique</option>
-                    <option value="scale_dorien">Dorien</option>
-                    <option value="scale_phrygien">Phrygien</option>
-                    <option value="scale_lydien">Lydien</option>
-                    <option value="scale_mixolydien">Mixolydien</option>
-                    <option value="scale_locrien">Locrien</option>
-                    <option value="scale_penta_maj">Pentatonique majeure</option>
-                    <option value="scale_penta_min">Pentatonique mineure</option>
-                    <option value="scale_blues_min">Blues mineure</option>
-                    <option value="scale_blues_maj">Blues majeure</option>
-                    <option value="scale_par_ton">Gamme par ton</option>
-                    <option value="scale_dim_dt_t">Diminuée (Demi-ton / Ton)</option>
-                    <option value="scale_bebop_dom">Bebop Dominant</option>
-                    <option value="scale_chromatique">Chromatique</option>
-                </optgroup>
-                <optgroup label="--- Styles musicaux ---">
-                    <option value="aleatoire">Aléatoire (tous les modes)</option>
-                    <option value="solfege">Solfège (Idiomatique)</option>
-                    <option value="bach">Bach (Baroque & Contrepoint)</option>
-                    <option value="piazzolla">Piazzolla (Tango)</option>
-                    <option value="boulez">Boulez (Avant-garde / Sériel)</option>
-                    <option value="jazz_standards">Jazz Standards (Dorien, Lydien, Mixolydian)</option>
-                    <option value="chet_baker">Chet Baker (Cool Jazz)</option>
-                    <option value="coltrane">Coltrane (Modal & Extensions)</option>
-                    <option value="ravel">Ravel (Modale, Octatonique, Pentatonique)</option>
-                    <option value="debussy">Debussy (Par ton, Pentatonique, Modes)</option>
-                    <option value="bebop">Bebop (Gammes Bebop chromatisées)</option>
-                    <option value="atonal">Atonal (Chromatique & Sérialisme libre)</option>
-                </optgroup>
-            </select>
-
-            <div class="field field-tonalite">
-                <label class="field-label" for="tonique">Tonalité</label>
-                <select id="tonique" onchange="withUndo(redessinerGrille)" title="Tonalité principale" aria-label="Tonalité principale">
-                        <option value="0" selected>C</option>
-                        <option value="1">C♯ / D♭</option>
-                        <option value="2">D</option>
-                        <option value="3">E♭ / D♯</option>
-                        <option value="4">E</option>
-                        <option value="5">F</option>
-                        <option value="6">F♯ / G♭</option>
-                        <option value="7">G</option>
-                        <option value="8">A♭ / G♯</option>
-                        <option value="9">A</option>
-                        <option value="10">B♭ / A♯</option>
-                        <option value="11">B</option>
-                </select>
-                <button type="button" class="btn-icon" onclick="jouerTonique()" title="Écouter la tonique (I)" aria-label="Écouter la tonique (I)"><svg class="icon" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button>
-                <button type="button" class="btn-icon" onclick="jouerArpegeI_III_V()" title="Écouter l'arpège (I - III - V)" aria-label="Écouter l'arpège (I - III - V)"><svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg></button>
-            </div>
-
-            <div class="field field-instrument">
-                <span class="field-label">Instrument</span>
-                <div class="segmented" role="group" aria-label="Instrument">
-                    <button type="button" class="seg-btn is-active" data-seg="transposition" data-value="-2" aria-pressed="true" onclick="choisirSegment('transposition', '-2', redessinerGrille)">Bb</button>
-                    <button type="button" class="seg-btn" data-seg="transposition" data-value="0" aria-pressed="false" onclick="choisirSegment('transposition', '0', redessinerGrille)">Ut</button>
-                    <button type="button" class="seg-btn" data-seg="transposition" data-value="3" aria-pressed="false" onclick="choisirSegment('transposition', '3', redessinerGrille)">Eb</button>
-                </div>
-                <input type="hidden" id="transposition" value="-2">
-            </div>
-
-            <div class="field">
-                <span class="field-label">Affichage</span>
-                <div class="segmented" role="group" aria-label="Affichage">
-                    <button type="button" class="seg-btn" data-seg="affichage" data-value="portee" aria-pressed="false" onclick="choisirSegment('affichage', 'portee', changerAffichage)">Portée</button>
-                    <button type="button" class="seg-btn is-active" data-seg="affichage" data-value="degres" aria-pressed="true" onclick="choisirSegment('affichage', 'degres', changerAffichage)">Degrés</button>
-                    <button type="button" class="seg-btn" data-seg="affichage" data-value="notes" aria-pressed="false" onclick="choisirSegment('affichage', 'notes', changerAffichage)">Notes</button>
-                    <button type="button" class="seg-btn" data-seg="affichage" data-value="lettres" aria-pressed="false" onclick="choisirSegment('affichage', 'lettres', changerAffichage)">Lettres</button>
-                </div>
-                <input type="hidden" id="affichage" value="degres">
-            </div>
-        </div>
-
-        <div class="controls-row controls-row-actions">
-            <div class="btn-group">
-                <button type="button" id="btnUndo" class="btn btn-slate" onclick="annuler()" title="Annuler (⌘Z)" aria-label="Annuler" disabled>↶</button>
-                <button type="button" id="btnRedo" class="btn btn-slate" onclick="retablir()" title="Rétablir (⌘⇧Z)" aria-label="Rétablir" disabled>↷</button>
-            </div>
-            <div class="btn-group">
-                <button type="button" id="btnToggleRythme" class="btn btn-toggle" hidden aria-pressed="false" onclick="toggleModeRythme()" title="Rythmes : activé = valeurs variées dans la portée (croches, blanches, pointées, silences) ; désactivé = noires seulement">Rythmes</button>
-                <button type="button" id="btnLearning" class="btn btn-toggle" aria-pressed="false" onclick="toggleModeApprentissage()" title="Apprentissage : activé = série de dominos d'entraînement progressifs ; désactivé = dominos aléatoires du style choisi">Apprentissage</button>
-                <button type="button" id="btnGammes" class="btn btn-toggle btn-toggle-icon" aria-pressed="false" onclick="toggleAffichageGammes()" title="Afficher / masquer le nom de la gamme en haut de chaque domino" aria-label="Afficher ou masquer les noms de gammes"><svg class="icon icon-mask" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.500 9.500C2.500 8.400 3.400 7.500 4.500 7.500c2.200 0 3.700 1.300 7.500 1.300s5.300-1.300 7.500-1.300c1.100 0 2 .9 2 2v1.800c0 2.700-1.600 4.700-4.200 4.700-1.900 0-2.700-1.700-4-1.700h-2.600c-1.300 0-2.100 1.700-4 1.700-2.600 0-4.200-2-4.200-4.700V9.500z"/><ellipse cx="7.400" cy="11.800" rx="2.200" ry="1.500"/><ellipse cx="16.600" cy="11.800" rx="2.200" ry="1.500"/></svg></button>
-            </div>
-            <div class="btn-group">
-                <button type="button" class="btn" onclick="ajouterDomino()" title="Ajouter un domino à la suite (ou double-clic sous les dominos)">+ Ajouter</button>
-                <button type="button" class="btn" onclick="ouvrirPopupCreation()" title="Créer un domino sur mesure à partir de ses degrés">Créer</button>
-            </div>
-            <div class="btn-group" id="barreActions">
-                <button type="button" class="btn btn-generate" onclick="effacerTout()" title="Génère une nouvelle série de 42 dominos">Générer</button>
-                <button type="button" class="btn btn-danger" onclick="effacerTousLesDominos()" title="Supprime tous les dominos">Effacer</button>
-                <button type="button" class="btn-ghost" onclick="window.print()" title="Imprimer les dominos" aria-label="Imprimer les dominos"><svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.32 0h1.005c1.045 0 1.897-.816 1.995-1.855a49.663 49.663 0 00-.128-6.078c-.075-.923-.826-1.635-1.751-1.752a48.925 48.925 0 00-15.702 0c-.925.117-1.676.83-1.751 1.752a49.665 49.665 0 00-.128 6.078c.098 1.039.95 1.855 1.995 1.855H5.34"/></svg></button>
-            </div>
-            <div class="btn-group">
-                <button type="button" id="btnSauvegardes" class="btn-saves" onclick="basculerMenuSauvegardes()" aria-haspopup="dialog" title="Sauvegardes : grilles enregistrées dans ce navigateur">
-                    <span id="saves-label" class="saves-label">Sauvegardes</span>
-                    <span class="saves-caret">▾</span>
-                </button>
-                <button type="button" class="btn btn-slate" onclick="exporterGrille()" title="Exporter la grille en cours dans un fichier .json">Exporter</button>
-                <button type="button" class="btn btn-slate" onclick="document.getElementById('import-file').click()" title="Importer une grille depuis un fichier .json">Importer</button>
-                <input type="file" id="import-file" accept=".json,application/json" hidden onchange="importerFichierGrille(this)">
-            </div>
-        </div>
+    <div class="pendulum-pivot" id="pendulum">
+      <div class="rod" id="rodEl"></div>
+      <div class="rod-base" id="rodBaseEl"></div>
+      <div class="weight" id="weight">
+        <div class="weight-top-bar"></div>
+      </div>
     </div>
 
-    <div id="creationModal" class="modal-overlay" aria-hidden="true">
-        <div class="creation-modal" role="dialog" aria-modal="true" aria-labelledby="creationModalTitle">
-            <div class="creation-modal-header">
-                <h2 id="creationModalTitle">Créer un domino</h2>
-                <button type="button" class="modal-close" onclick="fermerPopupCreation()" title="Fermer (Échap)" aria-label="Fermer"><svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
-            </div>
-            <div class="creation-modal-info" id="creationModalInfo">
-                <div id="creationModeFixe"><strong>Gamme :</strong> <span id="creationModeNom"></span></div>
-                <div id="creationModeChoix" class="creation-mode-choix" hidden>
-                    <label for="creationModeSelect"><strong>Mode :</strong></label>
-                    <select id="creationModeSelect" class="creation-mode-select" onchange="changerModeCreation()" aria-label="Mode du domino à créer"></select>
-                </div>
-                <div><strong>Tonique :</strong> <span id="creationTonique"></span></div>
-            </div>
-            <label for="creationDegreesInput" class="creation-degrees-label">Degrés à afficher, dans l’ordre :</label>
-            <input type="text" id="creationDegreesInput" class="creation-degrees-input" placeholder="Ex. 13361751+ ou 5-13211" autocomplete="off">
-            <div class="creation-degrees-help">
-                <strong>-</strong> après un chiffre : l’octave en dessous (<strong>5-</strong> = V grave) ·
-                <strong>1+</strong> = I de l’octave au-dessus (le plus aigu possible).<br>
-                Quand un degré passe sous le I, une <span class="help-barre">barre jaune</span> marque le degré I.
-                L’écart entre le degré le plus grave et le plus aigu ne peut pas dépasser une octave.
-            </div>
-            <div id="creationModalError" class="creation-degrees-error" role="alert" hidden></div>
-            <div class="creation-modal-actions">
-                <button type="button" class="btn-modal" onclick="fermerPopupCreation()">Annuler</button>
-                <button type="button" class="btn-modal btn-modal-primary" onclick="creerDominoSurMesure()">Créer</button>
-            </div>
+    <div class="bottom-panel">
+      <div class="hub-circle" id="hubBtn">
+        <span class="bpm-val" id="bpmDisplay">80</span>
+        <span class="bpm-unit">bpm</span>
+      </div>
+
+      <div class="display-row">
+        <div class="param-box clickable" id="batBtn">
+          <span class="param-num" id="batDisplay">4</span>
+          <span class="param-lbl">bat</span>
         </div>
+      </div>
+
+      <div class="tempo-name" id="tempoText">Andante</div>
+
+      <div class="btn-row">
+        <button class="touch-btn" id="slowerBtn">
+          <svg class="arrow-icon" viewBox="0 0 24 10">
+            <path d="M 2,8 Q 12,1 22,8" />
+          </svg>
+          <span class="lbl">+lent</span>
+        </button>
+        <button class="touch-btn" id="fasterBtn">
+          <svg class="arrow-icon" viewBox="0 0 24 10">
+            <path d="M 2,2 Q 12,9 22,2" />
+          </svg>
+          <span class="lbl">+rapide</span>
+        </button>
+      </div>
+
+      <div class="popover-menu" id="beatMenu"></div>
     </div>
-
-    <div id="saved-grids-modal" class="hidden" role="dialog" aria-label="Sauvegardes">
-        <div class="sg-panel">
-            <div id="saved-grids-modal-head" class="sg-head" title="Glisser pour déplacer">
-                <span class="sg-title">Sauvegardes</span>
-                <button type="button" class="modal-close" onclick="fermerMenuSauvegardes()" title="Fermer (Échap)" aria-label="Fermer"><svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
-            </div>
-            <div id="saved-grids-dropdown" class="sg-list"></div>
-        </div>
-    </div>
-
-    <div class="grid-title-wrap">
-        <span id="loaded-grid-name" class="loaded-grid-name" title="Cliquer pour renommer" hidden onclick="commencerRenommage()"></span>
-        <input id="grid-title-input" type="text" maxlength="60" autocomplete="off" spellcheck="false" placeholder="Titre de la grille" aria-label="Titre de la grille" title="Titre de la grille (Entrée pour valider, Échap pour annuler)" class="grid-title-input" hidden
-               onblur="validerTitre(this.value)"
-               onkeydown="if(event.key==='Enter'){this.blur();}else if(event.key==='Escape'){this.value=nomGrilleChargee||'';this.blur();}">
-    </div>
-
-    <table class="print-frame" role="presentation">
-        <thead class="print-spacer"><tr><td></td></tr></thead>
-        <tbody class="print-body"><tr><td><div id="grid"></div></td></tr></tbody>
-        <tfoot class="print-spacer"><tr><td></td></tr></tfoot>
-    </table>
-    </main>
-
-    <script>
-        let audioCtx = null;
-        let convolverNode = null;
-        let modeRythmiqueActif = false;
-        let modeApprentissageActif = false;
-        let wakeLock = null;
-
-        let activePlayback = {
-            card: null,
-            oscillators: [],
-            timeouts: []
-        };
-
-        const RHYTHM_EIGHTH_VALUES = {
-            'B': 4,
-            'BP': 6,
-            'N': 2,
-            'NP': 3,
-            'SN': 2,
-            'C': 1,
-            'DS': 1
-        };
-
-        const RHYTHM_CELLS_8_EIGHTHS = [
-            ['N', 'N', 'N', 'N'],
-            ['B', 'B'],
-            ['B', 'N', 'N'],
-            ['N', 'N', 'B'],
-            ['NP', 'C', 'N', 'N'],
-            ['N', 'N', 'NP', 'C'],
-            ['NP', 'C', 'B'],
-            ['C', 'C', 'C', 'C', 'N', 'N'],
-            ['N', 'N', 'C', 'C', 'C', 'C'],
-            ['C', 'C', 'N', 'N', 'C', 'C'],
-            ['C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'],
-            ['C', 'C', 'C', 'C', 'B'],
-            ['B', 'C', 'C', 'C', 'C'],
-            ['SN', 'N', 'N', 'N'],
-            ['N', 'SN', 'N', 'N'],
-            ['C', 'C', 'DS', 'C', 'N', 'N']
-        ];
-
-        async function requestWakeLock() {
-            if ('wakeLock' in navigator && !wakeLock) {
-                try {
-                    wakeLock = await navigator.wakeLock.request('screen');
-                    wakeLock.addEventListener('release', () => { wakeLock = null; });
-                } catch (err) {
-                    console.warn(`Wake Lock indisponible : ${err.message}`);
-                }
-            }
-        }
-
-        document.addEventListener('visibilitychange', async () => {
-            if (document.visibilityState === 'visible') {
-                await requestWakeLock();
-            }
-        });
-
-        const DOMINOS_APPRENTISSAGE = [
-            [1, 2, 3, 4, 5],
-            [5, 4, 3, 2, 1],
-            [1, 3, 5],
-            [5, 3, 1],
-            [1, 5, 1],
-            [1, 3, 5, 4, 3, 2, 1],
-            [1, 2, 3, 4, 5, 3, 1],
-            [1, 3, 5, 6, 5],
-            [1, 3, 5, 8, 5],
-            [1, 2, 3, 5],
-            [1, 3, 4, 5],
-            [5, 3, 2, 1],
-            [5, 4, 3, 1],
-            [1, 3, 5, 8],
-            [1, 5, 8],
-            [8, 5, 1],
-            [1, 2, 3, 4, 5, 6, 7, 8],
-            [8, 7, 6, 5, 4, 3, 2, 1],
-            [1, 2, 3, 4, 5, 8],
-            [8, 7, 6, 5, 1],
-            [1, 5, 4, 3, 2, 1],
-            [5, 1, 2, 3, 4, 5],
-            [1, 4, 3],
-            [1, 6, 5],
-            [1, 3, 5, 1, 4, 6, 5],
-            [1, 2, 1, 3, 1, 4, 1, 5],
-            [5, 4, 5, 3, 5, 2, 5, 1],
-            [1, 2, 3, 2, 3, 4, 3, 4, 5],
-            [5, 4, 3, 4, 3, 2, 3, 2, 1],
-            [1, 8, 1],
-            [1, 8, 5],
-            [8, 1, 8],
-            [8, 1, 5],
-            [8, 5, 8],
-            [5, 8, 5, 1],
-            [1, 3, 2, 4, 3, 5],
-            [5, 3, 4, 2, 3, 1],
-            [1, 3, 2, 2, 4, 3, 3, 5, 4],
-            [5, 3, 5, 6, 5],
-            [5, 3, 5, 8, 5],
-            [1, 3, 1, 5, 1, 8],
-            [1, 8, 5, 3, 1],
-            [1, 5, 3, 8],
-            [8, 5, 3],
-            [5, 3, 8],
-            [1, 3, 5, 7, 8],
-            [8, 5, 8, 3, 2, 1],
-            [3, 8, 7, 8, 5],
-            [8, 6, 4, 2, 5, 1],
-            // Dominos à barre jaune (degrés sous la tonique : 0 = VII-, -1 = VI-, -2 = V-, -3 = IV-)
-            [1, 0, 2, 1],                  // 17-21
-            [-2, 1, 0, 2, 1],              // 5-17-21
-            [1, 0, -1, -2, 4, 3, 2, 1],    // 17-6-5-4321
-            [1, 0, -1, 0, 1, 3, 2],        // 17-6-7-132
-            [4, 6, 5, 4, 2, 0, 1],         // 465427-1
-            [3, 1, -2, 4, 2, 3],           // 315-423
-            [-2, 0, 2, 4, 3, 2, 1],        // 5-7-24321
-            [-2, 1, 3, 2, 1]               // 5-1321
-        ];
-
-        const SCALE_NAMES = {
-            'maj': 'Gamme Majeure (Ionien)',
-            'min_nat': 'Mineure naturelle (Éolien)',
-            'min_har': 'Mineure harmonique',
-            'min_mel': 'Mineure mélodique',
-            'dorien': 'Dorien',
-            'phrygien': 'Phrygien',
-            'lydien': 'Lydien',
-            'mixolydien': 'Mixolydien',
-            'locrien': 'Locrien',
-            'penta_maj': 'Pentatonique majeure',
-            'penta_min': 'Pentatonique mineure',
-            'blues_min': 'Blues mineure',
-            'blues_maj': 'Blues majeure',
-            'par_ton': 'Gamme par ton',
-            'dim_dt_t': 'Diminuée (Demi-ton / Ton)',
-            'bebop_dom': 'Bebop Dominant',
-            'chromatique': 'Chromatique',
-            'altere': 'Gamme Altérée'
-        };
-
-        // Noms courts affichés en haut des dominos (le menu et la bulle gardent les noms complets)
-        const SCALE_LABELS = {
-            'maj': 'Ionien',
-            'min_nat': 'Éolien',
-            'min_har': 'Mineure harmonique',
-            'min_mel': 'Mineure mélodique',
-            'dorien': 'Dorien',
-            'phrygien': 'Phrygien',
-            'lydien': 'Lydien',
-            'mixolydien': 'Mixolydien',
-            'locrien': 'Locrien',
-            'penta_maj': 'Pentatonique majeure',
-            'penta_min': 'Pentatonique mineure',
-            'blues_min': 'Blues mineure',
-            'blues_maj': 'Blues majeure',
-            'par_ton': 'Par ton',
-            'dim_dt_t': 'Diminuée',
-            'bebop_dom': 'Bebop dominant',
-            'chromatique': 'Chromatique',
-            'altere': 'Altérée'
-        };
-
-        const GAMMES = {
-            'maj': [0, 2, 4, 5, 7, 9, 11],
-            'min_nat': [0, 2, 3, 5, 7, 8, 10],
-            'min_har': [0, 2, 3, 5, 7, 8, 11],
-            'min_mel': [0, 2, 3, 5, 7, 9, 11],
-            'dorien': [0, 2, 3, 5, 7, 9, 10],
-            'phrygien': [0, 1, 3, 5, 7, 8, 10],
-            'lydien': [0, 2, 4, 6, 7, 9, 11],
-            'mixolydien': [0, 2, 4, 5, 7, 9, 10],
-            'locrien': [0, 1, 3, 5, 6, 8, 10],
-            'penta_maj': [0, 2, 4, 7, 9],
-            'penta_min': [0, 3, 5, 7, 10],
-            'blues_min': [0, 3, 5, 6, 7, 10],
-            'blues_maj': [0, 2, 3, 4, 7, 9],
-            'par_ton': [0, 2, 4, 6, 8, 10],
-            'dim_dt_t': [0, 1, 3, 4, 6, 7, 9, 10],
-            'bebop_dom': [0, 2, 4, 5, 7, 9, 10, 11],
-            'chromatique': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-            'altere': [0, 1, 3, 4, 6, 8, 10]
-        };
-
-        const LETTERS = ['Do', 'Ré', 'Mi', 'Fa', 'Sol', 'La', 'Si'];
-        const ANGLO_LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
-        const LETTER_PITCHES = [0, 2, 4, 5, 7, 9, 11];
-
-        const TONIC_ROOTS = [
-            { letter: 0, pitch: 0 },
-            { letter: 0, pitch: 1 },
-            { letter: 1, pitch: 2 },
-            { letter: 2, pitch: 3 },
-            { letter: 2, pitch: 4 },
-            { letter: 3, pitch: 5 },
-            { letter: 3, pitch: 6 },
-            { letter: 4, pitch: 7 },
-            { letter: 5, pitch: 8 },
-            { letter: 5, pitch: 9 },
-            { letter: 6, pitch: 10 },
-            { letter: 6, pitch: 11 }
-        ];
-
-        const SCALE_DIATONIC_STEPS = {
-            'penta_maj': [0, 1, 2, 4, 5],
-            'penta_min': [0, 2, 3, 4, 6],
-            'blues_min': [0, 2, 3, 3, 4, 6],
-            'blues_maj': [0, 1, 2, 2, 4, 5],
-            'bebop_dom': [0, 1, 2, 3, 4, 5, 5, 6],
-            'chromatique': [0,0,1,1,2,2,3,3,4,5,5,6],
-            'altere': [0, 1, 2, 3, 4, 5, 6]
-        };
-
-        function getRandomInt(min, max) {
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-        }
-
-        // Bibliothèques de motifs par style (degrés de la gamme, 8 = octave ; 9 pour les gammes de 8 notes).
-        // Chaque domino en prend un fragment de la longueur voulue : un motif de 8 notes fournit plusieurs
-        // fragments distincts. Plus il y a de motifs, moins il faut modifier les notes pour éviter les doublons
-        // dans une longue série (42 dominos), et plus les dominos restent dans l'idiome du style.
-        const BIBLIOTHEQUES_MOTIFS = {
-            // Tango : lignes descendantes, arpèges i-III-V, notes répétées (marcato), sixte et septième de la mineure harmonique
-            piazzolla: [
-                [1,5,4,3,2,1,5,3], [1,3,5,8,7,5,3,1], [5,4,3,2,1,3,5,4], [1,2,4,3,5,4,3,2],
-                [8,7,6,5,6,5,4,3], [1,1,5,5,4,4,3,3], [3,5,8,7,6,5,4,3], [1,5,1,5,4,3,2,1],
-                [5,6,7,8,7,6,5,4], [1,3,2,1,5,4,3,2], [8,6,5,3,1,3,5,6], [1,4,3,2,1,5,4,3],
-                [3,2,1,2,3,5,4,3], [5,5,6,5,4,3,2,1], [1,5,3,5,1,5,3,5], [8,5,6,7,8,5,4,3],
-                [1,3,4,5,4,3,2,1], [5,3,1,3,5,8,7,5], [1,2,3,5,4,3,2,1], [4,3,2,1,5,4,3,2],
-                [6,5,4,3,2,1,2,3], [1,6,5,4,3,2,1,5], [3,4,5,6,7,8,7,5], [8,7,5,4,3,2,1,5],
-                [5,4,3,4,5,6,5,4], [1,3,5,3,6,5,4,3], [2,3,4,5,4,3,2,1], [7,8,5,6,7,8,7,6],
-                [1,5,4,5,3,5,2,5,1], [8,7,6,5,4,5,3,4,2,3,1]
-            ],
-            // Jazz standards : cellules ii-V-I, arpèges 1-3-5-7, lignes en 3es, tournures de bebop léger
-            jazz_standards: [
-                [2,5,1,3,5,3,2,1], [1,3,5,6,5,3,2,1], [3,5,7,6,5,3,2,1], [5,3,2,1,3,5,6,5],
-                [1,2,3,5,3,2,1,3], [1,3,5,7,8,7,5,3], [8,7,5,3,5,7,8,5], [7,5,3,1,2,3,5,7],
-                [2,3,5,6,5,3,2,1], [1,2,3,5,6,5,3,2], [5,4,3,2,1,2,3,5], [2,4,6,5,4,3,2,1],
-                [3,4,5,7,6,5,3,1], [1,5,3,5,6,5,3,1], [8,7,6,5,3,2,1,3], [6,5,3,2,1,2,3,5],
-                [5,7,8,7,5,3,2,1], [3,2,1,3,5,6,5,3], [2,5,4,3,2,1,3,5], [1,3,2,4,3,5,4,6],
-                [8,6,5,3,2,3,5,6], [5,6,5,3,2,1,2,3], [3,5,6,5,3,2,1,2], [4,3,2,1,5,6,7,8],
-                [1,3,5,7,5,3,1,2,3], [7,6,5,3,5,3,2,1]
-            ],
-            // Cool jazz (Chet Baker) : lignes chantantes, petits intervalles, tierces, notes longues ; tient aussi en pentatonique
-            chet_baker: [
-                [5,4,3,1,2,3,2,1], [1,2,3,2,1,3,5,3], [3,2,1,5,3,2,1,2], [1,3,2,1,5,4,3,2],
-                [5,3,4,3,2,1,2,3], [3,4,5,4,3,2,1,2], [1,2,3,5,3,2,3,1], [5,4,3,2,3,2,1,2],
-                [3,5,4,3,2,3,1,2], [1,3,5,4,3,2,1,3], [2,3,2,1,5,1,2,3], [5,3,3,2,1,2,3,2],
-                [1,2,1,3,2,1,5,1], [3,2,3,4,3,2,1,2], [4,3,2,3,1,2,3,5], [5,5,4,3,2,1,3,2],
-                [1,2,3,4,3,2,1,5], [3,1,2,3,5,3,2,1], [5,3,2,1,2,3,2,1], [2,1,5,1,2,3,5,3],
-                [3,2,1,2,3,5,3,2], [4,5,4,3,2,3,2,1], [1,5,3,2,1,2,3,1], [6,5,3,2,3,5,3,2]
-            ],
-            // Coltrane : cellules pentatoniques 1-2-3-5, arpèges, quartes, motifs permutés
-            coltrane: [
-                [1,2,3,5,3,2,1,5], [5,3,2,1,5,3,2,1], [1,2,3,5,6,5,3,2], [1,3,5,7,8,7,5,3],
-                [1,4,6,8,6,4,1,4], [3,5,7,8,5,3,1,3], [5,6,8,6,5,3,2,1], [1,2,3,5,8,5,3,2],
-                [8,7,5,3,2,1,2,3], [2,3,5,6,8,6,5,3], [1,5,3,2,1,5,6,5], [3,2,1,3,5,3,2,1],
-                [1,3,5,6,5,3,5,6], [5,3,5,6,8,6,5,3], [1,2,3,5,2,3,5,6], [3,5,6,5,3,2,1,2],
-                [1,3,2,5,3,6,5,8], [6,5,3,2,1,2,3,5], [8,6,5,3,2,1,2,3], [5,3,1,2,3,5,6,8],
-                [2,5,3,6,5,8,6,5], [1,3,5,3,1,2,3,5], [3,2,1,5,6,5,3,2], [1,2,3,5,3,2,5,3]
-            ],
-            // Bebop : arpèges de dominante, passages chromatiques de la gamme bebop (8 notes, 9 = octave)
-            bebop: [
-                [1,3,5,7,9,7,5,3], [9,7,5,3,1,2,3,5], [3,5,7,9,8,7,6,5], [5,7,9,8,7,5,3,1],
-                [1,2,3,5,3,2,1,3], [9,8,7,6,5,4,3,2], [5,6,7,8,9,7,5,3], [1,3,5,6,7,8,9,7],
-                [3,2,1,3,5,7,6,5], [7,5,3,1,3,5,7,9], [9,7,6,5,3,5,3,1], [1,2,3,4,5,7,5,3],
-                [5,3,1,2,3,5,7,9], [9,8,7,5,3,5,7,5], [3,5,7,5,3,1,2,3], [5,4,3,2,1,3,5,7],
-                [1,3,5,7,6,5,3,1], [9,7,5,6,7,5,3,1], [2,3,5,7,9,7,5,3], [7,6,5,3,1,3,5,3],
-                [3,4,5,6,7,8,9,7], [1,2,3,5,7,5,3,2], [9,8,7,6,5,4,3,1], [5,7,5,3,1,3,5,7],
-                [3,1,2,3,5,7,9,7], [9,7,5,3,5,7,9,8]
-            ],
-            // Ravel : lignes modales, quartes, neuvièmes, mouvements parallèles
-            ravel: [
-                [1,2,4,5,7,5,4,2], [3,4,6,7,6,4,3,2], [1,3,4,6,5,3,1,2], [5,4,2,1,2,4,5,7],
-                [1,2,3,5,3,2,1,2], [5,6,5,3,2,3,5,6], [1,4,5,4,2,1,2,4], [3,5,6,5,3,2,3,5],
-                [7,6,4,3,4,6,7,6], [2,4,5,7,5,4,2,1], [1,2,4,2,5,4,2,1], [6,5,3,2,1,2,3,5],
-                [1,3,5,4,2,4,5,3], [4,5,7,5,4,2,1,2], [2,3,5,6,5,3,2,1], [1,5,4,2,1,2,4,5],
-                [3,2,4,3,5,4,6,5], [5,3,4,2,3,1,2,1], [1,2,5,4,2,1,5,4], [7,5,4,2,4,5,7,5],
-                [1,2,3,4,6,5,3,2], [4,2,1,2,4,5,4,2], [6,4,3,1,2,3,4,6], [2,1,2,4,5,4,2,1],
-                [3,4,5,7,5,4,3,1], [1,4,2,5,3,6,4,7]
-            ],
-            // Debussy : gamme par tons, pentatonique, arabesques, lignes planantes
-            debussy: [
-                [1,2,3,4,5,6,5,4], [1,2,3,5,3,2,1,2], [3,5,6,5,3,2,1,2], [5,3,2,1,2,3,5,6],
-                [1,3,2,5,3,6,5,3], [6,5,4,3,2,1,2,3], [1,2,4,5,4,2,1,5], [3,2,1,3,5,3,2,1],
-                [2,3,5,6,5,3,2,1], [1,3,5,6,5,3,1,2], [4,3,2,1,2,3,4,5], [1,2,3,2,1,5,1,2],
-                [5,6,5,3,2,3,5,3], [1,4,3,2,1,2,3,5], [2,1,2,3,5,6,5,3], [3,4,5,6,5,4,3,2],
-                [6,5,3,2,3,5,6,5], [1,2,3,5,6,5,3,2], [5,4,3,1,2,3,1,5], [1,3,4,6,4,3,1,2],
-                [2,4,6,5,3,1,2,4], [7,6,5,4,3,2,1,2], [1,2,1,3,2,5,3,6], [3,1,2,3,5,6,5,3],
-                [1,5,3,2,1,2,3,5], [4,5,6,5,4,3,2,1]
-            ]
-        };
-
-        // Fragment idiomatique de la longueur demandée : un motif de la bibliothèque, ou une fenêtre dans un motif plus long.
-        // Seuls les fragments qui tiennent dans la gamme (degré max) sont retenus, pour ne pas déformer le motif.
-        function motifIdiomatique(style, longueur, maxDegre) {
-            const motifs = BIBLIOTHEQUES_MOTIFS[style] || [];
-            const candidats = [];
-            motifs.forEach(m => {
-                if (m.length >= longueur) {
-                    for (let o = 0; o + longueur <= m.length; o++) {
-                        const frag = m.slice(o, o + longueur);
-                        candidats.push(frag);
-                        if (o === 0) candidats.push(frag); // le début du motif, plus naturel, est un peu favorisé
-                    }
-                } else {
-                    const c = [];
-                    while (c.length < longueur) c.push(m[c.length % m.length]);
-                    candidats.push(c);
-                }
-            });
-            const tiennent = candidats.filter(c => Math.max(...c) <= maxDegre);
-            const pool = tiennent.length ? tiennent : candidats.map(c => c.map(d => Math.min(d, maxDegre)));
-            return [...pool[getRandomInt(0, pool.length - 1)]];
-        }
-
-        // Évite les doublons dans une série. Certains styles (Piazzolla, Jazz, Coltrane, Ravel…) n'ont que quelques
-        // motifs : pour une longue série (42 dominos), la recherche d'un motif encore inédit ne s'arrêtait plus.
-        // Après 20 essais on transpose le motif le long de la gamme, après 50 on change la première note, après 100 une note au hasard en plus ;
-        // au bout de MAX_ESSAIS_UNICITE essais, on accepte un doublon plutôt que de bloquer la page.
-        const MAX_ESSAIS_UNICITE = 500;
-        // Dans une série générée, les NB_DOMINOS_AVEC_BARRE derniers dominos descendent sous la tonique :
-        // ils contiennent au moins un degré sous le I, donc la barre jaune. Les deux premiers dominos (gamme montante
-        // et descendante), le mode Apprentissage (liste fixe) et les grilles trop courtes ne sont pas concernés.
-        const NB_DOMINOS_AVEC_BARRE = 7;
-        function doitContenirBarre(index, total) {
-            return !modeApprentissageActif && index >= 2 && total >= 2 * NB_DOMINOS_AVEC_BARRE && index >= total - NB_DOMINOS_AVEC_BARRE;
-        }
-
-        // Transpose le motif entier vers le bas le long de la gamme (une « séquence ») pour qu'il passe sous la tonique.
-        // Le décalage est choisi pour qu'au moins un degré soit sous le I (degré ≤ 0) et qu'au moins un reste au I ou au-dessus :
-        // la barre jaune se trouve alors au milieu du domino, et non à côté de notes qui sont toutes en dessous.
-        // Le motif tenait dans l'octave I → I : une fois décalé il tient dans une fenêtre d'une octave, donc l'amplitude
-        // reste valide, et le degré le plus grave est au pire le I de l'octave en dessous.
-        function descendreSousTonique(degres, scaleLen) {
-            const mn = Math.min(...degres);
-            const mx = Math.max(...degres);
-            const decalageMin = mn;                              // le degré le plus grave passe à 0 (VII-)
-            const decalageMax = Math.min(mx - 1, mn + scaleLen - 1); // le plus aigu reste au moins au I ; le plus grave au pire à 1-
-            const decalage = (decalageMax >= decalageMin) ? getRandomInt(decalageMin, decalageMax) : decalageMin;
-            return degres.map(d => d - decalage);
-        }
-
-        function varierPourUnicite(degres, attempts, maxDeg) {
-            // 1) d'abord on transpose le motif entier le long de la gamme (une « séquence », procédé idiomatique)
-            if (attempts > 20) {
-                const bas = 1 - Math.min(...degres), haut = maxDeg - Math.max(...degres);
-                if (haut >= bas) {
-                    const decalage = getRandomInt(bas, haut);
-                    for (let i = 0; i < degres.length; i++) degres[i] += decalage;
-                }
-            }
-            // 2) puis, en dernier recours, on modifie des notes
-            if (attempts > 50) degres[0] = (degres[0] % maxDeg) + 1;
-            if (attempts > 100) degres[getRandomInt(0, degres.length - 1)] = getRandomInt(1, maxDeg);
-        }
-
-        // Deux dominos sont « identiques » dès qu'ils ont la même succession de degrés, quels que soient
-        // la gamme / le mode, le type d'affichage et les rythmes (les paramètres restent pour compatibilité).
-        function getVisualSignature(scaleKey, degres, rythmes, affichageMode) {
-            return degres.join(',');
-        }
-
-        function mefifierAjusterEighthsStrict(rythmes, degres) {
-            let n = Math.min(rythmes.length, degres.length);
-            let totalEighths = 0;
-            let finalRythmes = [];
-            let finalDegres = [];
-
-            for (let i = 0; i < n; i++) {
-                let r = rythmes[i];
-                let val = RHYTHM_EIGHTH_VALUES[r] || 2;
-
-                if (totalEighths + val <= 8) {
-                    finalRythmes.push(r);
-                    finalDegres.push(degres[i]);
-                    totalEighths += val;
-                } else {
-                    let diff = 8 - totalEighths;
-                    if (diff === 4) { finalRythmes.push('B'); finalDegres.push(degres[i]); totalEighths += 4; }
-                    else if (diff === 3) { finalRythmes.push('NP'); finalDegres.push(degres[i]); totalEighths += 3; }
-                    else if (diff === 2) { finalRythmes.push('N'); finalDegres.push(degres[i]); totalEighths += 2; }
-                    else if (diff === 1) { finalRythmes.push('C'); finalDegres.push(degres[i]); totalEighths += 1; }
-                    break;
-                }
-                if (totalEighths === 8) break;
-            }
-
-            while (totalEighths < 8) {
-                let diff = 8 - totalEighths;
-                let lastDeg = finalDegres.length > 0 ? finalDegres[finalDegres.length - 1] : 1;
-                if (diff >= 4) { finalRythmes.push('B'); finalDegres.push(lastDeg); totalEighths += 4; }
-                else if (diff === 3) { finalRythmes.push('NP'); finalDegres.push(lastDeg); totalEighths += 3; }
-                else if (diff === 2) { finalRythmes.push('N'); finalDegres.push(lastDeg); totalEighths += 2; }
-                else if (diff === 1) { finalRythmes.push('C'); finalDegres.push(lastDeg); totalEighths += 1; }
-            }
-
-            return { rythmes: finalRythmes, degres: finalDegres };
-        }
-
-        function mettreAJourInfoBulle(card) {
-            const numSpan = card.querySelector('.domino-number');
-            if (!numSpan) return;
-            const scaleKey = getCardScaleKey(card);
-            const nomGamme = SCALE_NAMES[scaleKey] || scaleKey;
-            numSpan.title = ''; // pas d'infobulle au survol : la gamme s'affiche au clic / à l'appui sur le numéro
-            numSpan.setAttribute('aria-label', `Domino ${numSpan.textContent} — ${nomGamme} (appuyer pour afficher le mode / la gamme)`);
-            if (card._bulleGamme) card._bulleGamme.textContent = nomGamme;
-            if (card._etiquetteGamme) card._etiquetteGamme.textContent = SCALE_LABELS[scaleKey] || nomGamme;
-        }
-
-        // Bouton « masque » : affiche (ou masque) le nom de la gamme en haut de tous les dominos.
-        let affichageGammesActif = false;
-        function toggleAffichageGammes() {
-            affichageGammesActif = !affichageGammesActif;
-            masquerBullesGamme();
-            document.body.classList.toggle('gammes-visibles', affichageGammesActif);
-            const btn = document.getElementById('btnGammes');
-            if (btn) {
-                btn.classList.toggle('is-active', affichageGammesActif);
-                btn.setAttribute('aria-pressed', String(affichageGammesActif));
-            }
-        }
-
-        // Un appui sur le numéro du domino affiche (ou masque) sa gamme / son mode dans une petite bulle.
-        // Fonctionne au toucher (téléphone), où l'infobulle au survol n'existe pas.
-        let bulleGammeTimer = null;
-        function masquerBullesGamme() {
-            clearTimeout(bulleGammeTimer);
-            bulleGammeTimer = null;
-            document.querySelectorAll('.domino-card').forEach(card => {
-                if (card._bulleGamme) {
-                    card._bulleGamme.remove();
-                    card._bulleGamme = null;
-                }
-            });
-        }
-
-        function basculerBulleGamme(card) {
-            const dejaOuverte = !!card._bulleGamme;
-            masquerBullesGamme();
-            if (dejaOuverte) return;
-            const scaleKey = getCardScaleKey(card);
-            const bulle = document.createElement('div');
-            bulle.className = 'domino-scale-bubble';
-            bulle.setAttribute('role', 'status');
-            bulle.textContent = SCALE_NAMES[scaleKey] || scaleKey;
-            card.appendChild(bulle);
-            card._bulleGamme = bulle;
-            bulleGammeTimer = setTimeout(masquerBullesGamme, 4000);
-        }
-
-        // Toucher / cliquer ailleurs referme la bulle (phase de capture : les dominos arrêtent la propagation des clics).
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest || e.target.closest('.domino-number')) return;
-            masquerBullesGamme();
-        }, true);
-
-        function createReverbBuffer(ctx) {
-            const rate = ctx.sampleRate;
-            const length = rate * 1.5;
-            const decay = 2.0;
-            const impulse = ctx.createBuffer(2, length, rate);
-            const left = impulse.getChannelData(0);
-            const right = impulse.getChannelData(1);
-
-            for (let i = 0; i < length; i++) {
-                const n = length - i;
-                left[i] = (Math.random() * 2 - 1) * Math.pow(n / length, decay);
-                right[i] = (Math.random() * 2 - 1) * Math.pow(n / length, decay);
-            }
-            return impulse;
-        }
-
-        function getAudioContext() {
-            requestWakeLock();
-
-            if (!audioCtx) {
-                if ('audioSession' in navigator) {
-                    navigator.audioSession.type = 'playback';
-                }
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                convolverNode = audioCtx.createConvolver();
-                convolverNode.buffer = createReverbBuffer(audioCtx);
-
-                const wetGain = audioCtx.createGain();
-                wetGain.gain.value = 0.22;
-
-                convolverNode.connect(wetGain);
-                wetGain.connect(audioCtx.destination);
-            }
-
-            const silentAudio = document.getElementById('silent-unlock');
-            if (silentAudio && silentAudio.paused) {
-                silentAudio.play().catch(() => {});
-            }
-
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-            return audioCtx;
-        }
-
-        // Boutons segmentés (Instrument, Affichage) : un champ caché garde la valeur lue par le reste du code
-        function choisirSegment(inputId, valeur, callback) {
-            document.getElementById(inputId).value = valeur;
-            document.querySelectorAll(`[data-seg="${inputId}"]`).forEach(btn => {
-                const actif = (btn.dataset.value === valeur);
-                btn.classList.toggle('is-active', actif);
-                btn.setAttribute('aria-pressed', String(actif));
-            });
-            if (callback) callback();
-        }
-
-        // Bascule Apprentissage : libellé fixe, état = couleur verte + aria-pressed
-        function majBoutonApprentissage() {
-            const btn = document.getElementById('btnLearning');
-            if (!btn) return;
-            btn.classList.toggle('is-active', modeApprentissageActif);
-            btn.setAttribute('aria-pressed', String(modeApprentissageActif));
-        }
-
-        function changerAffichage() {
-            const affichage = document.getElementById('affichage').value;
-            const btnToggle = document.getElementById('btnToggleRythme');
-            btnToggle.hidden = (affichage !== 'portee');
-            redessinerGrille();
-        }
-
-        function toggleModeRythme() {
-            modeRythmiqueActif = !modeRythmiqueActif;
-            const btnToggle = document.getElementById('btnToggleRythme');
-            btnToggle.classList.toggle('is-active', modeRythmiqueActif);
-            btnToggle.setAttribute('aria-pressed', String(modeRythmiqueActif));
-
-            const grid = document.getElementById('grid');
-            const cards = grid.getElementsByClassName('domino-card');
-            const affichageMode = document.getElementById('affichage').value;
-            let existingVisualSignatures = new Set();
-
-            Array.from(cards).forEach((card, index) => {
-                if (!card._isFirstTwo) {
-                    const styleVal = document.getElementById('styleGamme').value || 'scale_maj';
-                    const scaleKey = getCardScaleKey(card);
-                    const scale = GAMMES[scaleKey] || GAMMES['maj'];
-                    const scaleLen = scale.length;
-                    const maxDegDisplay = scaleLen + 1;
-
-                    let motifRythmique = modeRythmiqueActif ? RHYTHM_CELLS_8_EIGHTHS[getRandomInt(0, RHYTHM_CELLS_8_EIGHTHS.length - 1)] : new Array(4).fill('N');
-                    let tempDegres, ajust;
-                    let vSig = '';
-                    let attempts = 0;
-
-                    do {
-                        tempDegres = genererMelodieParStyle(styleVal, index, maxDegDisplay, scaleLen, motifRythmique.length);
-                        ajust = mefifierAjusterEighthsStrict(motifRythmique, tempDegres);
-                        
-                        varierPourUnicite(ajust.degres, attempts, maxDegDisplay);
-                        if (doitContenirBarre(index, cards.length)) ajust.degres = descendreSousTonique(ajust.degres, scaleLen);
-                        vSig = getVisualSignature(scaleKey, ajust.degres, ajust.rythmes, affichageMode);
-                        attempts++;
-                    } while (existingVisualSignatures.has(vSig) && attempts < MAX_ESSAIS_UNICITE);
-
-                    existingVisualSignatures.add(vSig);
-                    card._rythmes = ajust.rythmes;
-                    card._degres = ajust.degres;
-                } else {
-                    let vSig = getVisualSignature(card._scaleKey, card._degres, card._rythmes, affichageMode);
-                    let attempts = 0;
-                    while (existingVisualSignatures.has(vSig) && attempts < MAX_ESSAIS_UNICITE) {
-                        card._degres[0] = (card._degres[0] % (GAMMES[card._scaleKey]?.length || 7)) + 1;
-                        vSig = getVisualSignature(card._scaleKey, card._degres, card._rythmes, affichageMode);
-                        attempts++;
-                    }
-                    existingVisualSignatures.add(vSig);
-                    if (!modeRythmiqueActif) {
-                        card._rythmes = new Array(card._degres.length).fill('N');
-                    }
-                }
-                const canvas = card.querySelector('canvas');
-                dessinerDominoCanvas(canvas, card._degres, card);
-            });
-        }
-
-        function toggleModeApprentissage() {
-            if (modeApprentissageActif) {
-                genererSerie(42);
-            } else {
-                genererModeApprentissage();
-            }
-        }
-
-        function getCardScale(card) {
-            if (card && card._scaleKey) {
-                return GAMMES[card._scaleKey] || GAMMES['maj'];
-            }
-            const val = document.getElementById('styleGamme').value;
-            if (val.startsWith('scale_')) {
-                return GAMMES[val.replace('scale_', '')] || GAMMES['maj'];
-            }
-            return GAMMES['maj'];
-        }
-
-        function getCardScaleKey(card) {
-            if (card && card._scaleKey) return card._scaleKey;
-            const val = document.getElementById('styleGamme').value;
-            if (val.startsWith('scale_')) return val.replace('scale_', '');
-            return 'maj';
-        }
-
-        function getNoteScale(card, degres, index) {
-            const scaleKey = getCardScaleKey(card);
-            if (scaleKey === 'min_mel') {
-                if (index === 0) return GAMMES['min_mel'];
-                if (degres[index] >= degres[index - 1]) {
-                    return GAMMES['min_mel'];
-                } else {
-                    return GAMMES['min_nat'];
-                }
-            }
-            return GAMMES[scaleKey] || GAMMES['maj'];
-        }
-
-        function assignScaleForDomino(styleVal, index) {
-            if (styleVal.startsWith('scale_')) {
-                let key = styleVal.replace('scale_', '');
-                if (index === 1 && key === 'min_mel' && !modeApprentissageActif) {
-                    return 'min_nat';
-                }
-                return key;
-            }
-            const palette = modesDuStyle(styleVal);
-            // Aléatoire : les deux premiers dominos (gammes) tirent eux aussi leur mode au hasard
-            if ((index === 0 || index === 1) && !modeApprentissageActif && styleVal !== 'aleatoire') {
-                return palette[0];
-            }
-            return palette[getRandomInt(0, palette.length - 1)];
-        }
-
-        // Modes utilisés par chaque style musical (le premier est le mode « principal » du style).
-        const PALETTES_STYLES = {
-            'solfege': ['maj'],
-            'bach': ['maj', 'min_har', 'min_mel'],
-            'piazzolla': ['min_har', 'min_nat'],
-            'boulez': ['altere', 'dim_dt_t', 'par_ton'],
-            'jazz_standards': ['dorien', 'lydien', 'mixolydien', 'maj'],
-            'chet_baker': ['dorien', 'penta_min', 'min_nat'],
-            'coltrane': ['penta_maj', 'dim_dt_t', 'lydien', 'bebop_dom'],
-            'ravel': ['dorien', 'lydien', 'mixolydien', 'dim_dt_t', 'penta_maj'],
-            'debussy': ['par_ton', 'penta_maj', 'dorien', 'lydien'],
-            'bebop': ['bebop_dom'],
-            'atonal': ['chromatique'],
-            // Aléatoire : tous les modes de l'application (les 17 du menu + la gamme altérée, utilisée par Boulez), dans l'ordre du menu
-            'aleatoire': ['maj', 'min_nat', 'min_har', 'min_mel', 'dorien', 'phrygien', 'lydien', 'mixolydien', 'locrien',
-                          'penta_maj', 'penta_min', 'blues_min', 'blues_maj', 'par_ton', 'dim_dt_t', 'bebop_dom', 'chromatique', 'altere']
-        };
-
-        // Liste des modes que peut prendre un domino pour le style choisi : un seul pour une gamme / un mode pur
-        function modesDuStyle(styleVal) {
-            if (styleVal.startsWith('scale_')) return [styleVal.replace('scale_', '')];
-            return PALETTES_STYLES[styleVal] || ['maj'];
-        }
-
-        // Gammes non heptatoniques : degrés nommés d'après la gamme majeure (num = degré I..VII, alt = altération)
-        const DEGREES_HEPTA = {
-            'penta_maj':   [[1,''],[2,''],[3,''],[5,''],[6,'']],
-            'penta_min':   [[1,''],[3,'♭'],[4,''],[5,''],[7,'♭']],
-            'blues_min':   [[1,''],[3,'♭'],[4,''],[5,'♭'],[5,''],[7,'♭']],
-            'blues_maj':   [[1,''],[2,''],[3,'♭'],[3,''],[5,''],[6,'']],
-            'par_ton':     [[1,''],[2,''],[3,''],[4,'♯'],[5,'♯'],[7,'♭']],
-            'dim_dt_t':    [[1,''],[2,'♭'],[3,'♭'],[3,''],[4,'♯'],[5,''],[6,''],[7,'♭']],
-            'bebop_dom':   [[1,''],[2,''],[3,''],[4,''],[5,''],[6,''],[7,'♭'],[7,'']],
-            'chromatique': [[1,''],[2,'♭'],[2,''],[3,'♭'],[3,''],[4,''],[4,'♯'],[5,''],[6,'♭'],[6,''],[7,'♭'],[7,'']]
-        };
-
-        // Plage de degrés acceptée pour un domino. 1 = tonique, scaleLen + 1 = I de l'octave supérieure (« 1+ »),
-        // qui est le plus haut possible. 0, -1, -2… sont les degrés sous la tonique (VII-, VI-, V-…),
-        // jusqu'au I de l'octave en dessous (« 1- », degré 1 - scaleLen).
-        function plageDegres(scaleLen) {
-            return { min: 1 - scaleLen, max: scaleLen + 1 };
-        }
-
-        // Règle de l'amplitude : l'écart entre le degré le plus grave et le plus aigu ne dépasse jamais une octave
-        // (7 positions graphiques), comme dans un domino ordinaire I → I. Ainsi, quand la barre jaune existe,
-        // le domino n'est pas plus « étalé » qu'un domino ordinaire : les positions relatives restent celles d'habitude.
-        function amplitudeValide(degres, scaleKey, scaleLen) {
-            const aff = degres.map(d => getDegreAffichage(scaleKey, d, scaleLen));
-            if (!aff.length) return true;
-            const positions = aff.map(a => a.pos);
-            return (Math.max(...positions) - Math.min(...positions)) <= aff[0].diviseur;
-        }
-
-        // Modulo toujours positif (le « % » de JavaScript renvoie un résultat négatif pour les degrés sous la tonique)
-        function modPositif(n, m) {
-            return ((n % m) + m) % m;
-        }
-
-        // Retourne l'étiquette du degré et sa hauteur (0 = tonique) dans le domino, ainsi que le diviseur vertical
-        function getDegreAffichage(scaleKey, degre, scaleLen) {
-            const table = DEGREES_HEPTA[scaleKey];
-            if (!table) {
-                return { texte: toRoman(degre, scaleLen), pos: degre - 1, diviseur: scaleLen };
-            }
-            const idx = modPositif(degre - 1, table.length);
-            const octave = Math.floor((degre - 1) / table.length);
-            const [num, alt] = table[idx];
-            return {
-                texte: toRoman(num, 7),
-                pos: octave * 7 + (num - 1),
-                diviseur: 7
-            };
-        }
-
-        function toRoman(degre, scaleLen = 7) {
-            const scaleDegre = modPositif(degre - 1, scaleLen) + 1;
-            const map = [[10, 'X'], [9, 'IX'], [8, 'VIII'], [7, 'VII'], [6, 'VI'], [5, 'V'], [4, 'IV'], [3, 'III'], [2, 'II'], [1, 'I']];
-            let res = '';
-            let n = scaleDegre;
-            for (let [val, str] of map) {
-                while (n >= val) {
-                    res += str;
-                    n -= val;
-                }
-            }
-            return res;
-        }
-
-        function getNoteInfo(degre, card, anglo = false, index = 0, degres = []) {
-            const scale = (degres && degres.length > 0) ? getNoteScale(card, degres, index) : getCardScale(card);
-            const scaleKey = getCardScaleKey(card);
-            const tonicIndex = parseInt(document.getElementById('tonique').value) || 0;
-            const root = TONIC_ROOTS[tonicIndex] || { letter: 0, pitch: 0 };
-
-            const scaleIndex = modPositif(degre - 1, scale.length);
-            const octaveOffset = Math.floor((degre - 1) / scale.length);
-
-            let letterStep = scaleIndex;
-            if (SCALE_DIATONIC_STEPS[scaleKey]) {
-                letterStep = SCALE_DIATONIC_STEPS[scaleKey][scaleIndex % SCALE_DIATONIC_STEPS[scaleKey].length];
-            }
-
-            const targetLetter = (root.letter + letterStep) % 7;
-            const targetPitch  = (root.pitch + scale[scaleIndex]) % 12;
-
-            const basePitch = LETTER_PITCHES[targetLetter];
-            let diff = (targetPitch - basePitch + 12) % 12;
-
-            let accidental = '';
-            let extraStep = 0;
-            if (diff === 1) accidental = '♯';
-            else if (diff === 2) {
-                accidental = '♯';
-                extraStep = 1;
-            }
-            else if (diff === 11) accidental = '♭';
-            else if (diff === 10) {
-                accidental = '♭';
-                extraStep = -1;
-            }
-
-            const absoluteOctave = 4 + Math.floor((root.letter + letterStep) / 7) + octaveOffset;
-            const noteDiatonicIndex = (absoluteOctave * 7) + targetLetter + extraStep;
-            const e4DiatonicIndex = (4 * 7) + 2;
-            const staffStepFromE4 = noteDiatonicIndex - e4DiatonicIndex;
-
-            const letters = anglo ? ANGLO_LETTERS : LETTERS;
-            const finalLetter = (targetLetter + extraStep + 7) % 7;
-
-            return {
-                name: letters[finalLetter] + accidental,
-                accidental: accidental,
-                staffStep: staffStepFromE4
-            };
-        }
-
-        function playPianoNote(freq, startTime, duration = 2.5) {
-            const ctx = getAudioContext();
-            const createdNodes = [];
-
-            const masterGain = ctx.createGain();
-            masterGain.gain.setValueAtTime(0, startTime);
-            masterGain.gain.linearRampToValueAtTime(1.2, startTime + 0.008);
-            masterGain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
-
-            const filter = ctx.createBiquadFilter();
-            filter.type = 'lowpass';
-            filter.frequency.setValueAtTime(Math.min(freq * 8.0, 16000), startTime);
-            filter.frequency.exponentialRampToValueAtTime(Math.max(freq * 1.2, 200), startTime + duration * 0.7);
-
-            const partials = [
-                { mult: 1.000, gain: 0.85, type: 'triangle' },
-                { mult: 2.001, gain: 0.35, type: 'sine' },
-                { mult: 3.003, gain: 0.20, type: 'sine' },
-                { mult: 4.006, gain: 0.12, type: 'sine' },
-                { mult: 5.010, gain: 0.07, type: 'sine' },
-                { mult: 6.015, gain: 0.04, type: 'sine' },
-                { mult: 8.030, gain: 0.02, type: 'sine' }
-            ];
-
-            partials.forEach(p => {
-                const osc = ctx.createOscillator();
-                const pGain = ctx.createGain();
-
-                osc.type = p.type;
-                osc.frequency.setValueAtTime(freq * p.mult, startTime);
-                
-                pGain.gain.setValueAtTime(p.gain, startTime);
-                pGain.gain.exponentialRampToValueAtTime(0.0001, startTime + (duration * (1 / p.mult * 0.8 + 0.2)));
-
-                osc.connect(pGain);
-                pGain.connect(filter);
-
-                osc.start(startTime);
-                osc.stop(startTime + duration);
-
-                createdNodes.push(osc);
-                createdNodes.push(pGain);
-            });
-
-            const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 0.03, ctx.sampleRate);
-            const output = noiseBuffer.getChannelData(0);
-            for (let i = 0; i < noiseBuffer.length; i++) {
-                output[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.005));
-            }
-            const noiseSource = ctx.createBufferSource();
-            noiseSource.buffer = noiseBuffer;
-
-            const noiseFilter = ctx.createBiquadFilter();
-            noiseFilter.type = 'bandpass';
-            noiseFilter.frequency.value = Math.min(freq * 3, 3000);
-            noiseFilter.Q.value = 1.0;
-
-            const noiseGain = ctx.createGain();
-            noiseGain.gain.setValueAtTime(0.15, startTime);
-            noiseGain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.03);
-
-            noiseSource.connect(noiseFilter);
-            noiseFilter.connect(noiseGain);
-            noiseGain.connect(masterGain);
-
-            noiseSource.start(startTime);
-            createdNodes.push(noiseSource);
-
-            filter.connect(masterGain);
-            masterGain.connect(ctx.destination);
-            if (convolverNode) {
-                masterGain.connect(convolverNode);
-            }
-
-            createdNodes.push(masterGain);
-            createdNodes.push(filter);
-
-            return createdNodes;
-        }
-
-        function getFrequency(degre, card, index = 0, degres = []) {
-            const tonicOffset = parseInt(document.getElementById('tonique').value) || 0;
-            const transOffset = parseInt(document.getElementById('transposition').value) || 0;
-            const scale = (degres && degres.length > 0) ? getNoteScale(card, degres, index) : getCardScale(card);
-
-            const octave = Math.floor((degre - 1) / scale.length);
-            const scaleIndex = modPositif(degre - 1, scale.length);
-            const semitone = tonicOffset + transOffset + scale[scaleIndex] + (octave * 12);
-
-            const rootFreq = 261.63;
-            return rootFreq * Math.pow(2, semitone / 12);
-        }
-
-        function stopCurrentPlayback() {
-            if (activePlayback.card) {
-                activePlayback.card.classList.remove('playing');
-            }
-            activePlayback.oscillators.forEach(node => {
-                try { 
-                    if (node.stop) node.stop(); 
-                    if (node.disconnect) node.disconnect();
-                } catch (e) {}
-            });
-            activePlayback.timeouts.forEach(t => clearTimeout(t));
-            activePlayback = { card: null, oscillators: [], timeouts: [] };
-        }
-
-        function jouerTonique() {
-            stopCurrentPlayback();
-            const ctx = getAudioContext();
-            const freq = getFrequency(1, null);
-            const nodes = playPianoNote(freq, ctx.currentTime + 0.05, 2.5);
-            activePlayback.oscillators.push(...nodes);
-        }
-
-        function jouerArpegeI_III_V() {
-            stopCurrentPlayback();
-            const ctx = getAudioContext();
-            let now = ctx.currentTime + 0.05;
-            const stepDuration = 0.45;
-            const degres = [1, 3, 5];
-
-            degres.forEach((degre, index) => {
-                const freq = getFrequency(degre, null);
-                const nodes = playPianoNote(freq, now + (index * stepDuration), 2.5);
-                activePlayback.oscillators.push(...nodes);
-            });
-        }
-
-        function jouerMelodie(degres, cardElement) {
-            if (activePlayback.card === cardElement) {
-                stopCurrentPlayback();
-                return;
-            }
-
-            stopCurrentPlayback();
-
-            const ctx = getAudioContext();
-            activePlayback.card = cardElement;
-            cardElement.classList.add('playing');
-
-            let now = ctx.currentTime + 0.05;
-            const modeAffichage = document.getElementById('affichage').value;
-
-            const estEnRythmes = (modeAffichage === 'portee' && modeRythmiqueActif);
-            const tempoBPM = estEnRythmes ? 99 : 132; // +10 % (avant : 90 / 120)
-            const tempoNoire = 60 / tempoBPM;
-
-            let rythmes = new Array(degres.length).fill('N');
-            if (modeAffichage === 'portee') {
-                if (cardElement._isFirstTwo) {
-                    rythmes = new Array(degres.length).fill('C');
-                } else {
-                    rythmes = modeRythmiqueActif ? (cardElement._rythmes || new Array(degres.length).fill('N')) : new Array(degres.length).fill('N');
-                }
-            }
-
-            let dureeTotale = 0;
-
-            degres.forEach((degre, index) => {
-                const typeRythme = rythmes[index] || 'N';
-                let mult = 1.0;
-                let estSilence = false;
-
-                if (typeRythme === 'B') mult = 2.0;
-                else if (typeRythme === 'BP') mult = 3.0;
-                else if (typeRythme === 'NP') mult = 1.5;
-                else if (typeRythme === 'C') mult = 0.5;
-                else if (typeRythme === 'SN') { mult = 1.0; estSilence = true; }
-                else if (typeRythme === 'DS') { mult = 0.5; estSilence = true; }
-
-                const dureeNote = tempoNoire * mult;
-
-                if (!estSilence) {
-                    const freq = getFrequency(degre, cardElement, index, degres);
-                    const nodes = playPianoNote(freq, now, Math.max(dureeNote * 2.2, 2.0));
-                    if (nodes) {
-                        activePlayback.oscillators.push(...nodes);
-                    }
-                }
-
-                now += dureeNote;
-                dureeTotale += dureeNote;
-            });
-
-            const totalDurationMs = (dureeTotale * 1000) + 500;
-            const timeoutId = setTimeout(() => {
-                if (activePlayback.card === cardElement) {
-                    stopCurrentPlayback();
-                }
-            }, totalDurationMs);
-
-            activePlayback.timeouts.push(timeoutId);
-        }
-
-        function genererMelodieParStyle(styleVal, indexDomino, maxDegre, scaleLen, forceLength = null) {
-            let degres = [];
-            let longueur = forceLength !== null ? Math.max(3, forceLength) : getRandomInt(4, 7);
-
-            if (!modeApprentissageActif) {
-                if (indexDomino === 0) {
-                    for (let d = 1; d <= Math.max(3, scaleLen + 1); d++) degres.push(d);
-                    return degres;
-                }
-                if (indexDomino === 1) {
-                    for (let d = scaleLen + 1; d >= 1; d--) degres.push(d);
-                    if (degres.length < 3) {
-                        degres = [scaleLen + 1, scaleLen, 1];
-                    }
-                    return degres;
-                }
-            }
-
-            // Gammes pures et Aléatoire : le mode est déjà fixé pour chaque domino, les motifs sont ceux du solfège
-            let styleCheck = (styleVal.startsWith('scale_') || styleVal === 'aleatoire') ? 'solfege' : styleVal;
-
-            switch(styleCheck) {
-                case 'bach':
-                    {
-                        let current = getRandomInt(1, Math.min(5, maxDegre));
-                        degres.push(current);
-                        for (let i = 1; i < longueur; i++) {
-                            const step = (Math.random() < 0.6) ? (Math.random() < 0.5 ? 1 : -1) : (Math.random() < 0.5 ? 2 : -2);
-                            current += step;
-                            if (current < 1) current = 1;
-                            if (current > maxDegre) current = maxDegre;
-                            degres.push(current);
-                        }
-                    }
-                    break;
-                case 'piazzolla':
-                    degres = motifIdiomatique('piazzolla', longueur, maxDegre);
-                    break;
-                case 'boulez':
-                case 'atonal':
-                    {
-                        for (let i = 0; i < longueur; i++) {
-                            degres.push(getRandomInt(1, maxDegre));
-                        }
-                    }
-                    break;
-                case 'jazz_standards':
-                case 'chet_baker':
-                case 'coltrane':
-                case 'bebop':
-                case 'ravel':
-                case 'debussy':
-                    degres = motifIdiomatique(styleCheck, longueur, maxDegre);
-                    break;
-                case 'solfege':
-                default:
-                    {
-                        const modelesIdiomatiques = [
-                            [0, 2, 4, 2, 0],
-                            [0, 1, 0, -1, 0],
-                            [0, 1, 2, 1, 2, 3, 4],
-                            [0, 2, 3, 4, 2, 4],
-                            [4, 3, 2, 1, 0],
-                            [0, 1, 2, 4, 3, 2, 0]
-                        ];
-                        let patronBrut = [...modelesIdiomatiques[Math.floor(Math.random() * modelesIdiomatiques.length)]];
-                        let notesRelatives = [];
-                        let indexModele = 0;
-                        while (notesRelatives.length < longueur) {
-                            notesRelatives.push(patronBrut[indexModele % patronBrut.length]);
-                            indexModele++;
-                        }
-                        notesRelatives = notesRelatives.slice(0, longueur);
-                        const depart = [1, 3, Math.min(5, scaleLen)][Math.floor(Math.random() * 3)];
-                        degres = notesRelatives.map(rel => {
-                            let d = depart + rel;
-                            if (d < 1) d = 1;
-                            if (d > maxDegre) d = maxDegre;
-                            return d;
-                        });
-                        if (longueur >= 3) {
-                            degres[longueur - 1] = (Math.random() < 0.7) ? 1 : Math.min(5, scaleLen);
-                        }
-                    }
-                    break;
-            }
-
-            while (degres.length < 3) {
-                degres.push(1);
-            }
-
-            return degres;
-        }
-
-        // Mise en page d'un domino en mode « Degrés / Notes / Lettres » (utilisée pour le dessin ET pour le clic).
-        // Quand tous les degrés sont dans l'octave I → I, la page est inchangée : I en bas, I de l'octave en haut.
-        // Dès qu'un degré passe sous la tonique, le bas du domino n'est plus la tonique : on étend l'échelle verticale
-        // vers le bas pour que tous les degrés tiennent, et une barre jaune marque la hauteur du degré I.
-        // Vers le haut, rien ne dépasse le I de l'octave supérieure (« 1+ »).
-        const COULEUR_BARRE_TONIQUE = '#EDD155';
-        function disposerDominoDegres(degres, scaleKey, scaleLen, w, h) {
-            const paddingX = 24;
-            const paddingTop = 40;
-            const paddingBottom = 25;
-            const widthUsable = w - (paddingX * 2);
-            const heightUsable = h - paddingTop - paddingBottom;
-            const nNotes = degres.length;
-
-            const aff = degres.map(d => getDegreAffichage(scaleKey, d, scaleLen));
-            const diviseur = aff.length ? aff[0].diviseur : scaleLen;
-            const hors = degres.some(d => d < 1);
-
-            let bas = 0;
-            let haut = diviseur;
-            if (hors) {
-                const positions = aff.map(a => a.pos);
-                bas = Math.min(0, ...positions);
-                haut = Math.max(0, bas + diviseur, ...positions);
-            }
-            // Pas d'un degré à l'autre : celui d'origine tant que ça tient, sinon on resserre
-            const pas = Math.min(heightUsable / diviseur, heightUsable / (haut - bas));
-            const yDe = pos => (h - paddingBottom) - ((pos - bas) * pas);
-
-            const stepX = widthUsable / Math.max(1, nNotes - 1);
-            return {
-                points: aff.map((a, i) => ({ x: paddingX + (i * stepX), y: yDe(a.pos), texte: a.texte })),
-                barre: hors ? { y: yDe(0), hauteur: Math.max(pas, 18) } : null
-            };
-        }
-
-        function dessinerDominoCanvas(canvas, degres, card) {
-            const modeAffichage = document.getElementById('affichage').value;
-            const scale = getCardScale(card);
-            const scaleLen = scale.length;
-
-            let rythmesCourants = [];
-            if (modeAffichage === 'portee') {
-                if (card && card._isFirstTwo) {
-                    rythmesCourants = new Array(degres.length).fill('C');
-                } else if (modeRythmiqueActif) {
-                    let baseRythmes = card._rythmes ? [...card._rythmes] : new Array(degres.length).fill('N');
-                    let ajust = mefifierAjusterEighthsStrict(baseRythmes, degres);
-                    rythmesCourants = ajust.rythmes;
-                    degres = ajust.degres;
-                    card._rythmes = rythmesCourants;
-                    card._degres = degres;
-                } else {
-                    rythmesCourants = new Array(degres.length).fill('N');
-                }
-            }
-
-            const nNotes = degres.length;
-            const scaleFactor = 2;
-            const estPortee = (modeAffichage === 'portee');
-            const w = estPortee ? 280 : 180;
-            const h = 230;
-
-            canvas.width = w * scaleFactor;
-            canvas.height = h * scaleFactor;
-            canvas.style.width = w + 'px';
-            canvas.style.height = h + 'px';
-            canvas.parentElement.style.width = w + 'px';
-
-            const ctx = canvas.getContext('2d');
-            ctx.setTransform(scaleFactor, 0, 0, scaleFactor, 0, 0);
-            ctx.clearRect(0, 0, w, h);
-
-            if (estPortee) {
-                const staffLineSpacing = 7;
-                const staffTop = h / 2 - (staffLineSpacing * 2) - 10;
-                const startX = 35;
-                const endX = w - 14;
-
-                ctx.strokeStyle = '#1d1d1f';
-                ctx.lineWidth = 1;
-
-                for (let l = 0; l < 5; l++) {
-                    const y = staffTop + (l * staffLineSpacing);
-                    ctx.beginPath();
-                    ctx.moveTo(14, y);
-                    ctx.lineTo(endX, y);
-                    ctx.stroke();
-                }
-
-                ctx.beginPath();
-                ctx.moveTo(14, staffTop);
-                ctx.lineTo(14, staffTop + (4 * staffLineSpacing));
-                ctx.moveTo(endX, staffTop);
-                ctx.lineTo(endX, staffTop + (4 * staffLineSpacing));
-                ctx.stroke();
-
-                ctx.font = 'bold 14px Arial, sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillStyle = '#1d1d1f';
-                ctx.fillText('4', 24, staffTop + staffLineSpacing);
-                ctx.fillText('4', 24, staffTop + (3 * staffLineSpacing));
-
-                const stepHeight = staffLineSpacing / 2;
-                const bottomLineY = staffTop + (4 * staffLineSpacing);
-
-                const noteStartX = startX + 16;
-                const noteEndX = endX - 16;
-                const noteUsableWidth = noteEndX - noteStartX;
-
-                let currentEighthPosition = 0;
-
-                const notesData = degres.map((degre, i) => {
-                    const typeRythme = rythmesCourants[i] || 'N';
-                    let eighthsVal = RHYTHM_EIGHTH_VALUES[typeRythme] || 2;
-
-                    const noteInfo = getNoteInfo(degre, card, false, i, degres);
-                    const step = noteInfo.staffStep;
-                    const stepX = nNotes > 1 ? noteUsableWidth / (nNotes - 1) : 0;
-                    const noteX = noteStartX + (i * stepX);
-                    const noteY = bottomLineY - (step * stepHeight);
-
-                    const posInEighths = currentEighthPosition;
-                    currentEighthPosition += eighthsVal;
-
-                    return { degre, typeRythme, noteInfo, step, noteX, noteY, posInEighths, eighthsVal };
-                });
-
-                card._notesDataCache = notesData;
-
-                let beamGroups = [];
-                let i = 0;
-                while (i < notesData.length - 1) {
-                    let n1 = notesData[i];
-                    let n2 = notesData[i + 1];
-                    if (n1.typeRythme === 'C' && n2.typeRythme === 'C' && (n1.posInEighths % 2 === 0)) {
-                        beamGroups.push([i, i + 1]);
-                        i += 2;
-                    } else {
-                        i++;
-                    }
-                }
-
-                beamGroups.forEach(group => {
-                    let avgStep = (notesData[group[0]].step + notesData[group[1]].step) / 2;
-                    let stemUp = avgStep < 4;
-
-                    const firstND = notesData[group[0]];
-                    const lastND = notesData[group[1]];
-                    const baseStemLen = 26;
-
-                    group.forEach(idx => {
-                        const nd = notesData[idx];
-                        nd.stemUp = stemUp;
-                        nd.inBeam = true;
-                        nd.stemX = stemUp ? nd.noteX + 4.5 : nd.noteX - 4.5;
-                        nd.stemYEnd = stemUp ? nd.noteY - baseStemLen : nd.noteY + baseStemLen;
-                    });
-                });
-
-                notesData.forEach((nd) => {
-                    const { typeRythme, noteInfo, step, noteX, noteY } = nd;
-                    const isDotted = (typeRythme === 'NP' || typeRythme === 'BP');
-                    const isHollow = (typeRythme === 'B' || typeRythme === 'BP');
-
-                    if (typeRythme === 'SN') {
-                        const midY = staffTop + (2 * staffLineSpacing);
-                        ctx.fillStyle = '#1d1d1f';
-                        ctx.strokeStyle = '#1d1d1f';
-                        ctx.lineWidth = 1.3;
-
-                        ctx.beginPath();
-                        ctx.moveTo(noteX + 2, midY - 6);
-                        ctx.bezierCurveTo(noteX - 4, midY - 3, noteX - 3, midY + 1, noteX + 2, midY + 4);
-                        ctx.stroke();
-
-                        ctx.beginPath();
-                        ctx.moveTo(noteX + 2, midY - 6);
-                        ctx.lineTo(noteX - 3, midY + 6);
-                        ctx.lineWidth = 1.2;
-                        ctx.stroke();
-                        return;
-                    }
-
-                    if (typeRythme === 'DS') {
-                        const midY = staffTop + (2 * staffLineSpacing);
-                        ctx.fillStyle = '#1d1d1f';
-                        ctx.strokeStyle = '#1d1d1f';
-                        ctx.lineWidth = 1.2;
-
-                        ctx.beginPath();
-                        ctx.arc(noteX - 2, midY - 2, 1.8, 0, Math.PI * 2);
-                        ctx.fill();
-                        ctx.beginPath();
-                        ctx.moveTo(noteX - 2, midY - 2);
-                        ctx.lineTo(noteX + 2, midY - 6);
-                        ctx.lineTo(noteX - 2, midY + 4);
-                        ctx.stroke();
-                        return;
-                    }
-
-                    if (step <= -2) {
-                        for (let ls = -2; ls >= step; ls -= 2) {
-                            const ledgerY = bottomLineY - (ls * stepHeight);
-                            ctx.beginPath();
-                            ctx.moveTo(noteX - 8, ledgerY);
-                            ctx.lineTo(noteX + 8, ledgerY);
-                            ctx.stroke();
-                        }
-                    }
-                    if (step >= 10) {
-                        for (let ls = 10; ls <= step; ls += 2) {
-                            const ledgerY = bottomLineY - (ls * stepHeight);
-                            ctx.beginPath();
-                            ctx.moveTo(noteX - 8, ledgerY);
-                            ctx.lineTo(noteX + 8, ledgerY);
-                            ctx.stroke();
-                        }
-                    }
-
-                    if (noteInfo.accidental) {
-                        ctx.font = '16px "Patrick Hand", cursive, Arial, sans-serif';
-                        ctx.textAlign = 'right';
-                        ctx.textBaseline = 'middle';
-                        ctx.fillStyle = '#1d1d1f';
-                        ctx.fillText(noteInfo.accidental, noteX - 8, noteY);
-                    }
-
-                    ctx.save();
-                    ctx.translate(noteX, noteY);
-                    ctx.rotate(-0.3);
-                    ctx.beginPath();
-                    ctx.ellipse(0, 0, 5.2, 3.8, 0, 0, Math.PI * 2);
-
-                    if (isHollow) {
-                        ctx.strokeStyle = '#1d1d1f';
-                        ctx.lineWidth = 1.8;
-                        ctx.stroke();
-                    } else {
-                        ctx.fillStyle = '#1d1d1f';
-                        ctx.fill();
-                    }
-                    ctx.restore();
-
-                    if (isDotted) {
-                        let dotY = noteY;
-                        if (step % 2 === 0) dotY -= stepHeight;
-                        ctx.fillStyle = '#1d1d1f';
-                        ctx.beginPath();
-                        ctx.arc(noteX + 9, dotY, 1.8, 0, Math.PI * 2);
-                        ctx.fill();
-                    }
-
-                    let stemUp = nd.stemUp !== undefined ? nd.stemUp : (step < 4);
-                    nd.actualStemUp = stemUp;
-                    let stemX = nd.stemX !== undefined ? nd.stemX : (stemUp ? noteX + 4.5 : noteX - 4.5);
-                    let stemYEnd = nd.stemYEnd !== undefined ? nd.stemYEnd : (stemUp ? noteY - 26 : noteY + 26);
-
-                    nd.stemX = stemX;
-                    nd.stemYEnd = stemYEnd;
-
-                    ctx.lineWidth = 1.5;
-                    ctx.strokeStyle = '#1d1d1f';
-                    ctx.beginPath();
-                    ctx.moveTo(stemX, noteY);
-                    ctx.lineTo(stemX, stemYEnd);
-                    ctx.stroke();
-
-                    if (typeRythme === 'C' && !nd.inBeam) {
-                        ctx.lineWidth = 1.6;
-                        ctx.strokeStyle = '#1d1d1f';
-                        ctx.beginPath();
-                        if (stemUp) {
-                            ctx.moveTo(stemX, stemYEnd);
-                            ctx.bezierCurveTo(stemX + 6, stemYEnd + 4, stemX + 9, stemYEnd + 11, stemX + 3, stemYEnd + 16);
-                        } else {
-                            ctx.moveTo(stemX, stemYEnd);
-                            ctx.bezierCurveTo(stemX + 6, stemYEnd - 4, stemX + 9, stemYEnd - 11, stemX + 3, stemYEnd - 16);
-                        }
-                        ctx.stroke();
-                    }
-                });
-
-                beamGroups.forEach(group => {
-                    const first = notesData[group[0]];
-                    const last = notesData[group[1]];
-
-                    ctx.lineWidth = 3.5;
-                    ctx.strokeStyle = '#1d1d1f';
-                    ctx.beginPath();
-                    ctx.moveTo(first.stemX, first.stemYEnd);
-                    ctx.lineTo(last.stemX, last.stemYEnd);
-                    ctx.stroke();
-                });
-
-            } else {
-                const fontSize = Math.max(8, Math.min((modeAffichage === 'notes' || modeAffichage === 'lettres') ? 11 : 13, Math.floor(120 / Math.max(nNotes, 5))));
-                const scaleKeyDessin = getCardScaleKey(card);
-                const mise = disposerDominoDegres(degres, scaleKeyDessin, scaleLen, w, h);
-
-                // Barre jaune du degré I : dessinée en premier, d'un bord à l'autre du domino, sous les chiffres
-                if (mise.barre) {
-                    ctx.fillStyle = COULEUR_BARRE_TONIQUE;
-                    ctx.fillRect(0, mise.barre.y - (mise.barre.hauteur / 2), w, mise.barre.hauteur);
-                }
-
-                ctx.font = `600 ${fontSize}px Arial, sans-serif`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillStyle = '#000000';
-
-                degres.forEach((degre, i) => {
-                    const p = mise.points[i];
-                    let texte = '';
-                    if (modeAffichage === 'notes') {
-                        texte = getNoteInfo(degre, card, false, i, degres).name;
-                    } else if (modeAffichage === 'lettres') {
-                        texte = getNoteInfo(degre, card, true, i, degres).name;
-                    } else {
-                        texte = p.texte;
-                    }
-
-                    ctx.fillText(texte, p.x, p.y);
-                });
-            }
-        }
-
-        function mettreAJourNumeros() {
-            const grid = document.getElementById('grid');
-            const cards = grid.getElementsByClassName('domino-card');
-            Array.from(cards).forEach((card, index) => {
-                const numSpan = card.querySelector('.domino-number');
-                if (numSpan) {
-                    numSpan.textContent = index + 1;
-                }
-                card._isFirstTwo = modeApprentissageActif ? false : (index < 2);
-                mettreAJourInfoBulle(card);
-                const canvas = card.querySelector('canvas');
-                if (canvas) {
-                    dessinerDominoCanvas(canvas, card._degres, card);
-                }
-            });
-        }
-
-        function creerDominoElement(degres, index, scaleKey, rythmes) {
-            const card = document.createElement('div');
-            card.className = 'domino-card';
-            card.title = 'Cliquer sur le numéro pour afficher sa gamme / son mode\nCliquer sur une note pour l\'écouter\nCliquer hors d\'une note pour écouter tout le domino\nDouble-clic pour réinitialiser\nClic droit pour supprimer';
-            card._degres = degres;
-            card._scaleKey = scaleKey;
-            card._rythmes = rythmes;
-            card._isFirstTwo = modeApprentissageActif ? false : (index < 2);
-
-            const numSpan = document.createElement('span');
-            numSpan.className = 'domino-number';
-            numSpan.textContent = index + 1;
-            numSpan.setAttribute('role', 'button');
-            numSpan.tabIndex = 0;
-            const surNumero = (e) => { e.stopPropagation(); };
-            numSpan.addEventListener('click', (e) => { e.stopPropagation(); basculerBulleGamme(card); });
-            numSpan.addEventListener('dblclick', surNumero); // un double appui ne doit pas réinitialiser le domino
-            numSpan.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); basculerBulleGamme(card); }
-            });
-            card.appendChild(numSpan);
-
-            // Nom de la gamme, en haut du domino (visible seulement quand le bouton « masque » est actif)
-            const etiquette = document.createElement('div');
-            etiquette.className = 'domino-scale-label';
-            etiquette.setAttribute('aria-hidden', 'true');
-            card.appendChild(etiquette);
-            card._etiquetteGamme = etiquette;
-
-            mettreAJourInfoBulle(card);
-
-            const canvas = document.createElement('canvas');
-            card.appendChild(canvas);
-
-            dessinerDominoCanvas(canvas, degres, card);
-
-            let clickTimer = null;
-            card.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (clickTimer) {
-                    clearTimeout(clickTimer);
-                    clickTimer = null;
-                    return;
-                }
-                clickTimer = setTimeout(() => {
-                    clickTimer = null;
-                    const rect = canvas.getBoundingClientRect();
-                    // Le canvas peut être affiché à une taille différente de sa taille logique
-                    // (ex. téléphone : 2 ou 3 dominos par ligne) : on convertit le clic en coordonnées logiques.
-                    const logicalW = canvas.width / 2;
-                    const logicalH = canvas.height / 2;
-                    const clickX = (e.clientX - rect.left) * (logicalW / rect.width);
-                    const clickY = (e.clientY - rect.top) * (logicalH / rect.height);
-
-                    const modeAffichage = document.getElementById('affichage').value;
-                    const scale = getCardScale(card);
-                    const scaleLen = scale.length;
-                    const nNotes = card._degres.length;
-
-                    let noteIndexClic = -1;
-                    let estSurSilence = false;
-
-                    if (modeAffichage === 'portee') {
-                        let rythmes = card._isFirstTwo ? new Array(nNotes).fill('C') : (modeRythmiqueActif ? (card._rythmes || new Array(nNotes).fill('N')) : new Array(nNotes).fill('N'));
-
-                        if (card._notesDataCache) {
-                            card._notesDataCache.forEach((nd, i) => {
-                                const typeRythme = rythmes[i] || 'N';
-                                const isSilence = (typeRythme === 'SN' || typeRythme === 'DS');
-
-                                if (Math.abs(clickX - nd.noteX) < 16 && Math.abs(clickY - nd.noteY) < 14) {
-                                    if (isSilence) {
-                                        estSurSilence = true;
-                                    } else {
-                                        noteIndexClic = i;
-                                    }
-                                }
-                            });
-                        }
-                    } else {
-                        const mise = disposerDominoDegres(card._degres, getCardScaleKey(card), scaleLen, 180, 230);
-
-                        mise.points.forEach((p, i) => {
-                            if (Math.abs(clickX - p.x) < 18 && Math.abs(clickY - p.y) < 15) {
-                                noteIndexClic = i;
-                            }
-                        });
-                    }
-
-                    if (estSurSilence) {
-                        return;
-                    } else if (noteIndexClic !== -1) {
-                        stopCurrentPlayback();
-                        const ctx = getAudioContext();
-                        const freq = getFrequency(card._degres[noteIndexClic], card, noteIndexClic, card._degres);
-                        const nodes = playPianoNote(freq, ctx.currentTime + 0.05, 2.0);
-                        activePlayback.oscillators.push(...nodes);
-                    } else {
-                        jouerMelodie(card._degres, card);
-                    }
-                }, 250);
-            });
-
-            card.addEventListener('dblclick', (e) => withUndo(() => {
-                e.stopPropagation();
-                if (clickTimer) {
-                    clearTimeout(clickTimer);
-                    clickTimer = null;
-                }
-                if (activePlayback.card === card) {
-                    stopCurrentPlayback();
-                }
-                const grid = document.getElementById('grid');
-                const cards = Array.from(grid.getElementsByClassName('domino-card'));
-                const currentIndex = cards.indexOf(card);
-                const styleVal = document.getElementById('styleGamme').value || 'scale_maj';
-                const affichageMode = document.getElementById('affichage').value;
-
-                let existingVisualSignatures = new Set(cards.filter(c => c !== card).map(c => getVisualSignature(c._scaleKey, c._degres, c._rythmes || [], affichageMode)));
-
-                const newScaleKey = assignScaleForDomino(styleVal, currentIndex);
-                const scale = GAMMES[newScaleKey] || GAMMES['maj'];
-                const scaleLen = scale.length;
-                const maxDegDisplay = scaleLen + 1;
-
-                let newRythmes = [];
-                let newDegres = [];
-                let vSig = '';
-                let attempts = 0;
-
-                do {
-                    if (modeApprentissageActif) {
-                        if (currentIndex < DOMINOS_APPRENTISSAGE.length && attempts === 0) {
-                            newDegres = [...DOMINOS_APPRENTISSAGE[currentIndex]];
-                            newRythmes = modeRythmiqueActif ? RHYTHM_CELLS_8_EIGHTHS.find(c => c.length === newDegres.length) || new Array(newDegres.length).fill('N') : new Array(newDegres.length).fill('N');
-                        } else {
-                            let motifCell = modeRythmiqueActif ? RHYTHM_CELLS_8_EIGHTHS[getRandomInt(0, RHYTHM_CELLS_8_EIGHTHS.length - 1)] : new Array(4).fill('N');
-                            let tempDegres = genererMelodieParStyle(styleVal, currentIndex, maxDegDisplay, scaleLen, motifCell.length);
-                            let ajust = mefifierAjusterEighthsStrict(motifCell, tempDegres);
-                            newRythmes = ajust.rythmes;
-                            newDegres = ajust.degres;
-                        }
-                    } else {
-                        if (currentIndex === 0 && attempts === 0) {
-                            newDegres = [];
-                            for (let d = 1; d <= Math.max(3, scaleLen + 1); d++) newDegres.push(d);
-                            newRythmes = new Array(newDegres.length).fill('C');
-                        } else if (currentIndex === 1 && attempts === 0) {
-                            newDegres = [];
-                            for (let d = scaleLen + 1; d >= 1; d--) newDegres.push(d);
-                            if (newDegres.length < 3) {
-                                newDegres = [scaleLen + 1, scaleLen, 1];
-                            }
-                            newRythmes = new Array(newDegres.length).fill('C');
-                        } else {
-                            let motifCell = modeRythmiqueActif ? RHYTHM_CELLS_8_EIGHTHS[getRandomInt(0, RHYTHM_CELLS_8_EIGHTHS.length - 1)] : new Array(4).fill('N');
-                            let tempDegres = genererMelodieParStyle(styleVal, currentIndex, maxDegDisplay, scaleLen, motifCell.length);
-                            let ajust = mefifierAjusterEighthsStrict(motifCell, tempDegres);
-                            newRythmes = ajust.rythmes;
-                            newDegres = ajust.degres;
-                        }
-                    }
-
-                    varierPourUnicite(newDegres, attempts, maxDegDisplay);
-                    if (doitContenirBarre(currentIndex, cards.length)) newDegres = descendreSousTonique(newDegres, scaleLen);
-                    vSig = getVisualSignature(newScaleKey, newDegres, newRythmes, affichageMode);
-                    attempts++;
-                } while (existingVisualSignatures.has(vSig) && attempts < MAX_ESSAIS_UNICITE);
-
-                card._scaleKey = newScaleKey;
-                card._degres = newDegres;
-                card._rythmes = newRythmes;
-                card._isFirstTwo = modeApprentissageActif ? false : (currentIndex < 2);
-                dessinerDominoCanvas(canvas, newDegres, card);
-                mettreAJourInfoBulle(card);
-            }));
-
-            card.addEventListener('contextmenu', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (activePlayback.card === card) {
-                    stopCurrentPlayback();
-                }
-                withUndo(() => {
-                    card.remove();
-                    mettreAJourNumeros();
-                });
-            });
-
-            return card;
-        }
-
-        function genererModeApprentissage() {
-            stopCurrentPlayback();
-            modeApprentissageActif = true;
-            majBoutonApprentissage();
-
-            const grid = document.getElementById('grid');
-            grid.innerHTML = '';
-            const styleVal = document.getElementById('styleGamme').value || 'scale_maj';
-            const affichageMode = document.getElementById('affichage').value;
-
-            let existingVisualSignatures = new Set();
-
-            DOMINOS_APPRENTISSAGE.forEach((degres, i) => {
-                const scaleKey = assignScaleForDomino(styleVal, i);
-                const motifCompat = RHYTHM_CELLS_8_EIGHTHS.find(c => c.length === degres.length);
-                let rythmes = modeRythmiqueActif ? (motifCompat ? [...motifCompat] : new Array(degres.length).fill('N')) : new Array(degres.length).fill('N');
-                let curDegres = [...degres];
-                let vSig = getVisualSignature(scaleKey, curDegres, rythmes, affichageMode);
-
-                let attempts = 0;
-                while (existingVisualSignatures.has(vSig) && attempts < MAX_ESSAIS_UNICITE) {
-                    curDegres[0] = (curDegres[0] % (GAMMES[scaleKey]?.length || 7)) + 1;
-                    vSig = getVisualSignature(scaleKey, curDegres, rythmes, affichageMode);
-                    attempts++;
-                }
-
-                existingVisualSignatures.add(vSig);
-                const card = creerDominoElement(curDegres, grid.children.length, scaleKey, rythmes);
-                grid.appendChild(card);
-            });
-        }
-
-        function genererSerie(total = 42) {
-            stopCurrentPlayback();
-            modeApprentissageActif = false;
-            majBoutonApprentissage();
-
-            const grid = document.getElementById('grid');
-            grid.innerHTML = '';
-            const styleVal = document.getElementById('styleGamme').value || 'scale_maj';
-            const affichageMode = document.getElementById('affichage').value;
-
-            let existingVisualSignatures = new Set();
-
-            for (let i = 0; i < total; i++) {
-                const scaleKey = assignScaleForDomino(styleVal, i);
-                const scale = GAMMES[scaleKey] || GAMMES['maj'];
-                const scaleLen = scale.length;
-                const maxDegDisplay = scaleLen + 1;
-
-                let rythmes = [];
-                let degres = [];
-                let vSig = '';
-                let attempts = 0;
-
-                do {
-                    if (!modeApprentissageActif) {
-                        if (i === 0 && attempts === 0) {
-                            degres = [];
-                            for (let d = 1; d <= Math.max(3, scaleLen + 1); d++) degres.push(d);
-                            rythmes = new Array(degres.length).fill('C');
-                        } else if (i === 1 && attempts === 0) {
-                            degres = [];
-                            for (let d = scaleLen + 1; d >= 1; d--) degres.push(d);
-                            if (degres.length < 3) {
-                                degres = [scaleLen + 1, scaleLen, 1];
-                            }
-                            rythmes = new Array(degres.length).fill('C');
-                        } else {
-                            let motifRythmique = modeRythmiqueActif ? RHYTHM_CELLS_8_EIGHTHS[getRandomInt(0, RHYTHM_CELLS_8_EIGHTHS.length - 1)] : ['N', 'N', 'N', 'N'];
-                            let tempDegres = genererMelodieParStyle(styleVal, i, maxDegDisplay, scaleLen, motifRythmique.length);
-                            let ajust = mefifierAjusterEighthsStrict(motifRythmique, tempDegres);
-                            rythmes = ajust.rythmes;
-                            degres = ajust.degres;
-                        }
-                    }
-                    varierPourUnicite(degres, attempts, maxDegDisplay);
-                    if (doitContenirBarre(i, total)) degres = descendreSousTonique(degres, scaleLen);
-                    vSig = getVisualSignature(scaleKey, degres, rythmes, affichageMode);
-                    attempts++;
-                } while (existingVisualSignatures.has(vSig) && attempts < MAX_ESSAIS_UNICITE);
-
-                existingVisualSignatures.add(vSig);
-                const card = creerDominoElement(degres, i, scaleKey, rythmes);
-                grid.appendChild(card);
-            }
-        }
-
-        function ajouterDomino() {
-            stopCurrentPlayback();
-            const grid = document.getElementById('grid');
-            const cards = grid.getElementsByClassName('domino-card');
-            const nextIndex = cards.length;
-            const styleVal = document.getElementById('styleGamme').value || 'scale_maj';
-            const affichageMode = document.getElementById('affichage').value;
-
-            let existingVisualSignatures = new Set(Array.from(cards).map(c => getVisualSignature(c._scaleKey, c._degres, c._rythmes || [], affichageMode)));
-
-            const scaleKey = assignScaleForDomino(styleVal, nextIndex);
-            const scale = GAMMES[scaleKey] || GAMMES['maj'];
-            const scaleLen = scale.length;
-            const maxDegDisplay = scaleLen + 1;
-
-            let rythmes = [];
-            let degres = [];
-            let vSig = '';
-            let attempts = 0;
-            // Un domino ajouté a une chance sur sept de descendre sous la tonique (donc d'avoir la barre jaune) :
-            // le tirage est fait une seule fois, pas à chaque essai de la recherche d'un domino inédit.
-            // Pas pour les deux premières places (gammes) ni en mode Apprentissage.
-            const avecBarre = !modeApprentissageActif && nextIndex >= 2 && Math.random() < 1 / NB_DOMINOS_AVEC_BARRE;
-
-            do {
-                let motifRythmique = modeRythmiqueActif ? RHYTHM_CELLS_8_EIGHTHS[getRandomInt(0, RHYTHM_CELLS_8_EIGHTHS.length - 1)] : ['N', 'N', 'N', 'N'];
-                let tempDegres = genererMelodieParStyle(styleVal, nextIndex, maxDegDisplay, scaleLen, motifRythmique.length);
-                let ajust = mefifierAjusterEighthsStrict(motifRythmique, tempDegres);
-                rythmes = ajust.rythmes;
-                degres = ajust.degres;
-
-                varierPourUnicite(degres, attempts, maxDegDisplay);
-                if (avecBarre) degres = descendreSousTonique(degres, scaleLen);
-                vSig = getVisualSignature(scaleKey, degres, rythmes, affichageMode);
-                attempts++;
-            } while (existingVisualSignatures.has(vSig) && attempts < MAX_ESSAIS_UNICITE);
-
-            const card = creerDominoElement(degres, nextIndex, scaleKey, rythmes);
-            grid.appendChild(card);
-        }
-
-        function effacerTout() {
-            genererSerie(42);
-        }
-
-        function effacerTousLesDominos() {
-            stopCurrentPlayback();
-            document.getElementById('grid').innerHTML = '';
-        }
-
-        function getPremierePlaceVide() {
-            const grid = document.getElementById('grid');
-            const cards = Array.from(grid.getElementsByClassName('domino-card'));
-            const used = new Set(cards.map(card => parseInt(card.querySelector('.domino-number')?.textContent, 10)).filter(Number.isFinite));
-            let position = 1;
-            while (used.has(position)) position++;
-            return position - 1;
-        }
-
-        // Mode choisi pour la création, gardé tant que le style ne change pas (pour enchaîner plusieurs dominos du même mode)
-        let dernierModeCreation = null;
-
-        // Mode du domino à créer : celui choisi dans la fenêtre si le style en propose plusieurs, sinon l'unique mode du style
-        function getScaleKeyPourCreation() {
-            const styleVal = document.getElementById('styleGamme').value || 'scale_maj';
-            const modes = modesDuStyle(styleVal);
-            const choix = document.getElementById('creationModeSelect').value;
-            return (modes.length > 1 && modes.includes(choix)) ? choix : modes[0];
-        }
-
-        function changerModeCreation() {
-            const styleVal = document.getElementById('styleGamme').value || 'scale_maj';
-            dernierModeCreation = { style: styleVal, mode: document.getElementById('creationModeSelect').value };
-            document.getElementById('creationModalError').hidden = true;
-        }
-
-        function ouvrirPopupCreation() {
-            const styleVal = document.getElementById('styleGamme').value || 'scale_maj';
-            const modes = modesDuStyle(styleVal);
-            const tonalite = document.getElementById('tonique');
-            const nomTonique = tonalite.options[tonalite.selectedIndex]?.text || '';
-
-            // Un style qui mélange plusieurs modes : on choisit ici celui du domino. Gamme / mode pur : un seul mode, affiché tel quel.
-            const plusieurs = modes.length > 1;
-            const select = document.getElementById('creationModeSelect');
-            select.textContent = '';
-            if (plusieurs) {
-                modes.forEach(m => {
-                    const opt = document.createElement('option');
-                    opt.value = m;
-                    opt.textContent = SCALE_NAMES[m] || m;
-                    select.appendChild(opt);
-                });
-                const memo = dernierModeCreation && dernierModeCreation.style === styleVal && modes.includes(dernierModeCreation.mode);
-                select.value = memo ? dernierModeCreation.mode : modes[0];
-            } else {
-                document.getElementById('creationModeNom').textContent = SCALE_NAMES[modes[0]] || modes[0];
-            }
-            document.getElementById('creationModeChoix').hidden = !plusieurs;
-            document.getElementById('creationModeFixe').hidden = plusieurs;
-            document.getElementById('creationTonique').textContent = nomTonique;
-
-            document.getElementById('creationDegreesInput').value = '';
-            document.getElementById('creationModalError').hidden = true;
-
-            const modal = document.getElementById('creationModal');
-            modal.classList.add('open');
-            modal.setAttribute('aria-hidden', 'false');
-            setTimeout(() => document.getElementById('creationDegreesInput').focus(), 0);
-        }
-
-        function fermerPopupCreation() {
-            const modal = document.getElementById('creationModal');
-            modal.classList.remove('open');
-            modal.setAttribute('aria-hidden', 'true');
-            document.getElementById('creationDegreesInput').blur(); // le focus ne reste pas dans le champ masqué (⌘Z doit rester actif)
-        }
-
-        function creerDominoSurMesure() {
-            const valeur = document.getElementById('creationDegreesInput').value.trim();
-            if (!valeur) return;
-
-            stopCurrentPlayback();
-            const grid = document.getElementById('grid');
-            const cards = Array.from(grid.getElementsByClassName('domino-card'));
-            const scaleKey = getScaleKeyPourCreation();
-            const scale = GAMMES[scaleKey] || GAMMES['maj'];
-            const scaleLen = scale.length;
-            const plage = plageDegres(scaleLen);
-            // Saisie : un chiffre = un degré de la gamme ; chaque « - » qui le suit le descend d'une octave
-            // (« 5- » = le V de l'octave en dessous) ; « 1+ » = le I de l'octave au-dessus, le plus haut possible
-            // (un autre degré suivi de « + » dépasserait ce I aigu : il est ignoré).
-            const tokens = [];
-            let erreur = '';
-            for (let i = 0; i < valeur.length && tokens.length < 9; i++) {
-                if (!/[1-9]/.test(valeur[i])) continue;
-                const debut = i;
-                const base = parseInt(valeur[i], 10);
-                let degre = base;
-                while (i + 1 < valeur.length && /[+\-−–]/.test(valeur[i + 1])) {
-                    degre += (valeur[i + 1] === '+') ? scaleLen : -scaleLen;
-                    i++;
-                }
-                // le chiffre lui-même doit exister dans la gamme (8 = octave pour une gamme de 7 notes)
-                if (base > scaleLen + 1) continue;
-                if (degre < plage.min || degre > plage.max) {
-                    erreur = `« ${valeur.slice(debut, i + 1)} » est impossible : le degré le plus aigu est 1+ (le I de l’octave au-dessus) et le plus grave est 1- (le I de l’octave en dessous).`;
-                    break;
-                }
-                tokens.push(degre);
-            }
-            const degres = tokens;
-
-            if (!erreur && degres.length && !amplitudeValide(degres, scaleKey, scaleLen)) {
-                erreur = 'Amplitude trop grande : l’écart entre le degré le plus grave et le plus aigu ne peut pas dépasser une octave (par exemple 5-1321 est possible, 5-7 ne l’est pas).';
-            }
-            if (erreur) {
-                const zone = document.getElementById('creationModalError');
-                zone.textContent = erreur;
-                zone.hidden = false;
-                return;
-            }
-
-            if (!degres.length) return;
-
-            const index = cards.length;
-            const rythmes = new Array(degres.length).fill('N');
-            const card = creerDominoElement(degres, index, scaleKey, rythmes);
-            card._isFirstTwo = false;
-            grid.appendChild(card);
-            mettreAJourNumeros();
-            fermerPopupCreation();
-        }
-
-        function redessinerGrille() {
-            stopCurrentPlayback();
-            const grid = document.getElementById('grid');
-            const cards = grid.getElementsByClassName('domino-card');
-            const styleVal = document.getElementById('styleGamme').value || 'scale_maj';
-
-            Array.from(cards).forEach((card, index) => {
-                // Le mode de chaque domino a déjà été tiré à sa création : on le garde (sinon changer la tonalité ou
-                // l'affichage re-tirerait les modes des styles à plusieurs modes, sans refaire les notes)
-                const scaleKey = card._scaleKey || assignScaleForDomino(styleVal, index);
-                card._scaleKey = scaleKey;
-                card._isFirstTwo = modeApprentissageActif ? false : (index < 2);
-                const canvas = card.querySelector('canvas');
-                dessinerDominoCanvas(canvas, card._degres, card);
-                mettreAJourInfoBulle(card);
-            });
-        }
-
-        function rafraichirGrille() {
-            stopCurrentPlayback();
-            const grid = document.getElementById('grid');
-            const cards = Array.from(grid.getElementsByClassName('domino-card'));
-            const styleVal = document.getElementById('styleGamme').value || 'scale_maj';
-            const affichageMode = document.getElementById('affichage').value;
-
-            let existingVisualSignatures = new Set();
-
-            cards.forEach((card, index) => {
-                const scaleKey = assignScaleForDomino(styleVal, index);
-                const scale = GAMMES[scaleKey] || GAMMES['maj'];
-                const scaleLen = scale.length;
-                const maxDegDisplay = scaleLen + 1;
-
-                let rythmes = [];
-                let degres = [];
-                let vSig = '';
-                let attempts = 0;
-
-                do {
-                    if (!modeApprentissageActif) {
-                        if (index === 0) {
-                            degres = [];
-                            for (let d = 1; d <= Math.max(3, scaleLen + 1); d++) degres.push(d);
-                            rythmes = new Array(degres.length).fill('C');
-                        } else if (index === 1) {
-                            degres = [];
-                            for (let d = scaleLen + 1; d >= 1; d--) degres.push(d);
-                            if (degres.length < 3) {
-                                degres = [scaleLen + 1, scaleLen, 1];
-                            }
-                            rythmes = new Array(degres.length).fill('C');
-                        } else {
-                            let motifRythmique = modeRythmiqueActif ? RHYTHM_CELLS_8_EIGHTHS[getRandomInt(0, RHYTHM_CELLS_8_EIGHTHS.length - 1)] : ['N', 'N', 'N', 'N'];
-                            let tempDegres = genererMelodieParStyle(styleVal, index, maxDegDisplay, scaleLen, motifRythmique.length);
-                            let ajust = mefifierAjusterEighthsStrict(motifRythmique, tempDegres);
-                            rythmes = ajust.rythmes;
-                            degres = ajust.degres;
-                        }
-                    } else {
-                        degres = card._degres;
-                        rythmes = card._rythmes || new Array(degres.length).fill('N');
-                    }
-
-                    varierPourUnicite(degres, attempts, maxDegDisplay);
-                    if (doitContenirBarre(index, cards.length)) degres = descendreSousTonique(degres, scaleLen);
-                    vSig = getVisualSignature(scaleKey, degres, rythmes, affichageMode);
-                    attempts++;
-                } while (existingVisualSignatures.has(vSig) && attempts < MAX_ESSAIS_UNICITE);
-
-                existingVisualSignatures.add(vSig);
-                card._scaleKey = scaleKey;
-                card._degres = degres;
-                card._rythmes = rythmes;
-                card._isFirstTwo = modeApprentissageActif ? false : (index < 2);
-                const canvas = card.querySelector('canvas');
-                dessinerDominoCanvas(canvas, degres, card);
-                mettreAJourInfoBulle(card);
-            });
-        }
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') fermerPopupCreation();
-        });
-
-        document.getElementById('creationDegreesInput').addEventListener('input', () => {
-            document.getElementById('creationModalError').hidden = true;
-        });
-
-        document.getElementById('creationModal').addEventListener('click', (e) => {
-            if (e.target.id === 'creationModal') fermerPopupCreation();
-        });
-
-        document.addEventListener('dblclick', (e) => {
-            if (e.target.closest('.domino-card') || e.target.closest('.controls') || e.target.closest('.app-header') || e.target.closest('#saved-grids-modal') || e.target.closest('.grid-title-wrap') || e.target.tagName === 'SELECT' || e.target.tagName === 'BUTTON') return;
-
-            const grid = document.getElementById('grid');
-            const cards = Array.from(grid.getElementsByClassName('domino-card'));
-            if (cards.length === 0) {
-                ajouterDomino();
-                return;
-            }
-
-            const clickX = e.clientX;
-            const clickY = e.clientY;
-
-            const rows = [];
-            cards.forEach(card => {
-                const rect = card.getBoundingClientRect();
-                let row = rows.find(r => Math.abs(r.top - rect.top) < 15);
-                if (!row) {
-                    row = { top: rect.top, bottom: rect.bottom, cards: [] };
-                    rows.push(row);
-                }
-                row.cards.push(rect);
-            });
-
-            rows.sort((a, b) => a.top - b.top);
-            const lastRow = rows[rows.length - 1];
-
-            if (clickY > lastRow.bottom) {
-                ajouterDomino();
-                return;
-            }
-
-            const targetRow = rows.find(r => clickY >= r.top && clickY <= r.bottom);
-            if (targetRow) {
-                targetRow.cards.sort((a, b) => a.left - b.left);
-
-                let inInterstice = false;
-                for (let i = 0; i < targetRow.cards.length - 1; i++) {
-                    if (clickX > targetRow.cards[i].right && clickX < targetRow.cards[i+1].left) {
-                        inInterstice = true;
-                        break;
-                    }
-                }
-                if (inInterstice) return;
-
-                const lastCardInRow = targetRow.cards[targetRow.cards.length - 1];
-                if (clickX > lastCardInRow.right) {
-                    ajouterDomino();
-                }
-            }
-        });
-
-        genererSerie(42);
-        requestWakeLock();
-
-        // =====================================================================
-        // Annuler / Rétablir, sauvegardes, export / import (.json)
-        // Même fonctionnement que Chord Scales : historique de 100 étapes (⌘Z / ⌘⇧Z), fenêtre « Sauvegardes »
-        // déplaçable, « Sauvegarder sous… », Exporter / Importer un fichier .json (lecture sécurisée).
-        // =====================================================================
-        const CLE_SAUVEGARDES = 'dominosSavedGrids';
-        const LIMITE_ANNULER = 100;
-        const TRANSPOSITIONS_VALIDES = [-2, 0, 3];
-        const AFFICHAGES_VALIDES = ['degres', 'notes', 'lettres', 'portee'];
-
-        let nomGrilleChargee = null;
-        let pileAnnuler = [];
-        let pileRetablir = [];
-        let profondeurAnnuler = 0;
-        // Style et tonique « validés » : quand un menu change, sa valeur est déjà nouvelle au moment où
-        // l'action démarre ; on garde donc la dernière valeur connue pour l'état « avant ».
-        let reglagesConnus = null;
-
-        const aPropre = (obj, cle) => Object.prototype.hasOwnProperty.call(obj, cle);
-        const lireCartes = () => Array.from(document.getElementById('grid').getElementsByClassName('domino-card'));
-
-        // --- Lecture de l'état courant ---
-        function serialiserDominos() {
-            return lireCartes().map(c => ({
-                degres: [...c._degres],
-                scaleKey: c._scaleKey,
-                rythmes: [...(c._rythmes || new Array(c._degres.length).fill('N'))],
-                firstTwo: !!c._isFirstTwo
-            }));
-        }
-
-        // Réglages enregistrés avec une grille (sauvegarde et export)
-        function collecterReglages() {
-            return {
-                style: document.getElementById('styleGamme').value,
-                tonique: parseInt(document.getElementById('tonique').value, 10) || 0,
-                instrument: parseInt(document.getElementById('transposition').value, 10),
-                affichage: document.getElementById('affichage').value,
-                rythmes: modeRythmiqueActif,
-                apprentissage: modeApprentissageActif
-            };
-        }
-
-        // État de l'historique : dominos, nom chargé, style, tonique et modes. L'instrument et l'affichage
-        // sont des réglages de lecture : ils ne font pas partie de l'historique.
-        function capturerEtat() {
-            const r = collecterReglages();
-            return {
-                dominos: serialiserDominos(),
-                nom: nomGrilleChargee,
-                style: r.style,
-                tonique: r.tonique,
-                rythmes: r.rythmes,
-                apprentissage: r.apprentissage
-            };
-        }
-
-        function reconstruireDominos(liste) {
-            const grid = document.getElementById('grid');
-            grid.innerHTML = '';
-            liste.forEach((d, i) => {
-                const card = creerDominoElement([...d.degres], i, d.scaleKey, [...d.rythmes]);
-                if (typeof d.firstTwo === 'boolean') {
-                    card._isFirstTwo = d.firstTwo;
-                    dessinerDominoCanvas(card.querySelector('canvas'), card._degres, card);
-                }
-                mettreAJourInfoBulle(card);
-                grid.appendChild(card);
-            });
-        }
-
-        function majBoutonRythmes() {
-            const btn = document.getElementById('btnToggleRythme');
-            btn.classList.toggle('is-active', modeRythmiqueActif);
-            btn.setAttribute('aria-pressed', String(modeRythmiqueActif));
-            btn.hidden = (document.getElementById('affichage').value !== 'portee');
-        }
-
-        function appliquerEtat(etat) {
-            stopCurrentPlayback();
-            document.getElementById('styleGamme').value = etat.style;
-            document.getElementById('tonique').value = String(etat.tonique);
-            modeRythmiqueActif = !!etat.rythmes;
-            modeApprentissageActif = !!etat.apprentissage;
-            majBoutonRythmes();
-            majBoutonApprentissage();
-            nomGrilleChargee = etat.nom;
-            reconstruireDominos(etat.dominos);
-            majNomGrille();
-            reglagesConnus = { style: etat.style, tonique: etat.tonique };
-        }
-
-        // --- Historique ---
-        function withUndo(fn) {
-            // Les actions imbriquées (ex. « Générer » qui appelle genererSerie) ne forment qu'une seule étape.
-            if (profondeurAnnuler > 0) { fn(); return; }
-            const avant = capturerEtat();
-            if (reglagesConnus) { avant.style = reglagesConnus.style; avant.tonique = reglagesConnus.tonique; }
-            const avantJson = JSON.stringify(avant);
-            profondeurAnnuler++;
-            try { fn(); } finally { profondeurAnnuler--; }
-            const apres = capturerEtat();
-            reglagesConnus = { style: apres.style, tonique: apres.tonique };
-            if (JSON.stringify(apres) !== avantJson) {
-                pileAnnuler.push(avant);
-                if (pileAnnuler.length > LIMITE_ANNULER) pileAnnuler.shift();
-                pileRetablir = [];
-            }
-            majBoutonsAnnuler();
-        }
-
-        function annuler() {
-            if (pileAnnuler.length === 0) return;
-            pileRetablir.push(capturerEtat());
-            appliquerEtat(pileAnnuler.pop());
-            majBoutonsAnnuler();
-        }
-
-        function retablir() {
-            if (pileRetablir.length === 0) return;
-            pileAnnuler.push(capturerEtat());
-            appliquerEtat(pileRetablir.pop());
-            majBoutonsAnnuler();
-        }
-
-        function majBoutonsAnnuler() {
-            document.getElementById('btnUndo').disabled = (pileAnnuler.length === 0);
-            document.getElementById('btnRedo').disabled = (pileRetablir.length === 0);
-        }
-
-        // Actions qui modifient la grille : chacune devient une étape annulable
-        ['ajouterDomino', 'effacerTout', 'effacerTousLesDominos', 'toggleModeApprentissage',
-         'toggleModeRythme', 'rafraichirGrille', 'creerDominoSurMesure'].forEach(nom => {
-            const original = window[nom];
-            window[nom] = function (...args) {
-                let resultat;
-                withUndo(() => { resultat = original.apply(this, args); });
-                return resultat;
-            };
-        });
-
-        // ⌘Z / Ctrl+Z : annuler ; ⌘⇧Z / Ctrl+⇧+Z / Ctrl+Y : rétablir (sauf dans un champ de saisie)
-        document.addEventListener('keydown', (e) => {
-            if (!(e.metaKey || e.ctrlKey) || e.altKey) return;
-            const k = (e.key || '').toLowerCase();
-            const estAnnuler = (k === 'z' && !e.shiftKey);
-            const estRetablir = (k === 'z' && e.shiftKey) || (k === 'y' && e.ctrlKey && !e.metaKey);
-            if (!estAnnuler && !estRetablir) return;
-            const t = e.target;
-            const nonTexte = ['range', 'checkbox', 'radio', 'button', 'file'];
-            if (t && (t.isContentEditable || t.tagName === 'TEXTAREA' ||
-                (t.tagName === 'INPUT' && !nonTexte.includes(t.type)))) return;
-            if (document.getElementById('creationModal').classList.contains('open')) return;
-            e.preventDefault();
-            if (estAnnuler) annuler(); else retablir();
-        });
-
-        // --- Sauvegardes (stockées dans le navigateur) ---
-        function lireSauvegardes() {
-            try { return JSON.parse(localStorage.getItem(CLE_SAUVEGARDES)) || {}; }
-            catch (e) { return {}; }
-        }
-
-        function ecrireSauvegardes(saved) {
-            try { localStorage.setItem(CLE_SAUVEGARDES, JSON.stringify(saved)); return true; }
-            catch (e) { return false; }
-        }
-
-        function sauvegarderSous() {
-            if (lireCartes().length === 0) return;
-            const nom = prompt('Nom de la grille à sauvegarder :', '');
-            if (!nom) return;
-            const saved = lireSauvegardes();
-            saved[nom] = { dominos: serialiserDominos(), settings: collecterReglages() };
-            if (!ecrireSauvegardes(saved)) { alert("Impossible d'enregistrer la grille."); return; }
-            nomGrilleChargee = nom;
-            rendreMenuSauvegardes();
-            majNomGrille();
-        }
-
-        // Écrase la sauvegarde actuellement chargée avec la grille et les réglages en cours.
-        function mettreAJourSauvegarde() {
-            const nom = nomGrilleChargee;
-            const saved = lireSauvegardes();
-            if (!nom || !saved[nom]) { sauvegarderSous(); return; }
-            if (lireCartes().length === 0) return;
-            saved[nom] = { dominos: serialiserDominos(), settings: collecterReglages() };
-            if (!ecrireSauvegardes(saved)) { alert("Impossible d'enregistrer la grille."); return; }
-            rendreMenuSauvegardes();
-        }
-
-        function supprimerSauvegarde(nom) {
-            if (!nom) return;
-            if (!confirm(`Supprimer la grille « ${nom} » ?`)) return;
-            const saved = lireSauvegardes();
-            delete saved[nom];
-            ecrireSauvegardes(saved);
-            rendreMenuSauvegardes();
-        }
-
-        function chargerGrilleSauvegardee(nom) { withUndo(() => chargerGrilleSauvegardeeSansHistorique(nom)); }
-
-        function chargerGrilleSauvegardeeSansHistorique(nom) {
-            if (!nom) return;
-            const entree = lireSauvegardes()[nom];
-            if (!entree) return;
-            const dominos = assainirGrilleImportee(entree.dominos);
-            if (!dominos) return;
-            stopCurrentPlayback();
-            appliquerReglagesImportes(assainirReglagesImportes(entree.settings));
-            nomGrilleChargee = nom;
-            reconstruireDominos(dominos);
-            majNomGrille();
-            rendreMenuSauvegardes();
-            if (window.innerWidth <= 640) fermerMenuSauvegardes(); // téléphone : la feuille du bas masquerait la grille
-        }
-
-        // --- Lecture sécurisée d'un fichier importé : tout ce qui n'est pas valide est écarté ---
-        function assainirGrilleImportee(brut) {
-            if (!Array.isArray(brut) || brut.length === 0 || brut.length > 200) return null;
-            const propres = [];
-            for (const item of brut) {
-                if (!item || typeof item !== 'object') return null;
-                const scaleKey = (typeof item.scaleKey === 'string' && aPropre(GAMMES, item.scaleKey)) ? item.scaleKey : 'maj';
-                const plage = plageDegres(GAMMES[scaleKey].length);
-                if (!Array.isArray(item.degres) || item.degres.length < 1 || item.degres.length > 16) return null;
-                const degres = item.degres.map(Number);
-                if (!degres.every(n => Number.isInteger(n) && n >= plage.min && n <= plage.max)) return null;
-                if (!amplitudeValide(degres, scaleKey, GAMMES[scaleKey].length)) return null;
-                const rythmesValides = Array.isArray(item.rythmes) && item.rythmes.length === degres.length &&
-                    item.rythmes.every(r => typeof r === 'string' && aPropre(RHYTHM_EIGHTH_VALUES, r));
-                propres.push({
-                    degres,
-                    scaleKey,
-                    rythmes: rythmesValides ? [...item.rythmes] : new Array(degres.length).fill('N'),
-                    firstTwo: item.firstTwo === true
-                });
-            }
-            return propres;
-        }
-
-        function assainirReglagesImportes(data) {
-            const out = {};
-            if (!data || typeof data !== 'object' || Array.isArray(data)) return out;
-            const styles = Array.from(document.querySelectorAll('#styleGamme option')).map(o => o.value);
-            if (typeof data.style === 'string' && styles.includes(data.style)) out.style = data.style;
-            const tonique = Number(data.tonique);
-            if (data.tonique !== null && data.tonique !== undefined && Number.isInteger(tonique) && tonique >= 0 && tonique <= 11) out.tonique = tonique;
-            const instrument = Number(data.instrument);
-            if (data.instrument !== null && data.instrument !== undefined && TRANSPOSITIONS_VALIDES.includes(instrument)) out.instrument = instrument;
-            if (typeof data.affichage === 'string' && AFFICHAGES_VALIDES.includes(data.affichage)) out.affichage = data.affichage;
-            if (typeof data.rythmes === 'boolean') out.rythmes = data.rythmes;
-            if (typeof data.apprentissage === 'boolean') out.apprentissage = data.apprentissage;
-            return out;
-        }
-
-        function appliquerReglagesImportes(st) {
-            if (st.style !== undefined) document.getElementById('styleGamme').value = st.style;
-            if (st.tonique !== undefined) document.getElementById('tonique').value = String(st.tonique);
-            if (st.instrument !== undefined) choisirSegment('transposition', String(st.instrument));
-            if (st.affichage !== undefined) choisirSegment('affichage', st.affichage);
-            // les anciens fichiers n'ont pas ces modes : ils sont désactivés
-            modeRythmiqueActif = (st.rythmes === true);
-            modeApprentissageActif = (st.apprentissage === true);
-            majBoutonRythmes();
-            majBoutonApprentissage();
-        }
-
-        // --- Export / import d'une grille au format .json (partage entre utilisateurs) ---
-        function exporterGrille() {
-            if (lireCartes().length === 0) { alert('La grille est vide : rien à exporter.'); return; }
-            let nom = nomGrilleChargee;
-            if (!nom) {
-                nom = prompt('Nom de la grille à exporter :', 'grille');
-                if (!nom) return;
-            }
-            const payload = {
-                format: 'dominos-a-chanter-grid',
-                version: 1,
-                name: nom,
-                ...collecterReglages(),
-                dominos: serialiserDominos()
-            };
-            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            const nomFichier = nom.replace(/[\\/:*?"<>|]+/g, '_').trim() || 'grille';
-            a.href = url;
-            a.download = nomFichier + '.json';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            setTimeout(() => URL.revokeObjectURL(url), 1000);
-        }
-
-        function importerFichierGrille(input) {
-            const file = input.files && input.files[0];
-            input.value = '';
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onerror = () => alert('Impossible de lire ce fichier.');
-            reader.onload = () => {
-                let data;
-                try { data = JSON.parse(reader.result); }
-                catch (e) { alert("Ce fichier n'est pas un JSON valide."); return; }
-
-                const brut = Array.isArray(data) ? data : (data && data.dominos);
-                const dominos = assainirGrilleImportee(brut);
-                if (!dominos) { alert("Ce fichier ne contient pas de grille valide pour l'application."); return; }
-
-                let nom = (!Array.isArray(data) && typeof data.name === 'string' && data.name.trim())
-                    ? data.name.trim().slice(0, 80)
-                    : file.name.replace(/\.json$/i, '');
-                if (!nom) nom = 'Grille importée';
-
-                const saved = lireSauvegardes();
-                let nomFinal = nom, n = 2;
-                while (aPropre(saved, nomFinal)) nomFinal = `${nom} (${n++})`;
-                saved[nomFinal] = { dominos, settings: assainirReglagesImportes(data) };
-                if (!ecrireSauvegardes(saved)) { alert("Impossible d'enregistrer la grille importée."); return; }
-
-                chargerGrilleSauvegardee(nomFinal);
-                rendreMenuSauvegardes();
-            };
-            reader.readAsText(file);
-        }
-
-        // --- Fenêtre « Sauvegardes » : flottante, déplaçable en glissant sa barre de titre ---
-        let positionMenuSauvegardes = null;
-        let menuSauvegardesLie = false;
-
-        function basculerMenuSauvegardes() {
-            const el = document.getElementById('saved-grids-modal');
-            if (el.classList.contains('hidden')) ouvrirMenuSauvegardes(); else fermerMenuSauvegardes();
-        }
-
-        function ouvrirMenuSauvegardes() {
-            const el = document.getElementById('saved-grids-modal');
-            lierMenuSauvegardes();
-            rendreMenuSauvegardes();
-            el.classList.remove('hidden');
-            placerMenuSauvegardes();
-        }
-
-        function fermerMenuSauvegardes() {
-            document.getElementById('saved-grids-modal').classList.add('hidden');
-        }
-
-        // S'ouvre près du bouton ; une fois déplacée, la fenêtre se rouvre où on l'a laissée (dans l'écran).
-        function placerMenuSauvegardes() {
-            const el = document.getElementById('saved-grids-modal');
-            const etroit = window.innerWidth <= 640;
-            el.classList.toggle('sg-sheet', etroit);
-            if (etroit) { el.style.left = ''; el.style.top = ''; return; }
-            let pos = positionMenuSauvegardes;
-            if (!pos) {
-                const r = document.getElementById('btnSauvegardes').getBoundingClientRect();
-                pos = { left: r.left, top: r.bottom + 4 };
-            }
-            const left = Math.min(Math.max(0, pos.left), Math.max(0, window.innerWidth - el.offsetWidth));
-            const top = Math.min(Math.max(0, pos.top), Math.max(0, window.innerHeight - el.offsetHeight));
-            el.style.left = `${left}px`;
-            el.style.top = `${top}px`;
-        }
-
-        function lierMenuSauvegardes() {
-            if (menuSauvegardesLie) return;
-            menuSauvegardesLie = true;
-            const el = document.getElementById('saved-grids-modal');
-            const head = document.getElementById('saved-grids-modal-head');
-            head.addEventListener('pointerdown', (ev) => {
-                if (ev.button > 0 || (ev.target.closest && ev.target.closest('button'))) return;
-                if (el.classList.contains('sg-sheet')) return; // feuille du bas (téléphone) : non déplaçable
-                const r = el.getBoundingClientRect();
-                const dx = ev.clientX - r.left, dy = ev.clientY - r.top;
-                try { head.setPointerCapture(ev.pointerId); } catch (e) {}
-                el.classList.add('sg-dragging');
-                const move = (e) => {
-                    const left = Math.min(Math.max(0, e.clientX - dx), Math.max(0, window.innerWidth - el.offsetWidth));
-                    const top = Math.min(Math.max(0, e.clientY - dy), Math.max(0, window.innerHeight - el.offsetHeight));
-                    el.style.left = `${left}px`;
-                    el.style.top = `${top}px`;
-                    positionMenuSauvegardes = { left, top };
-                };
-                const up = () => {
-                    el.classList.remove('sg-dragging');
-                    head.removeEventListener('pointermove', move);
-                    head.removeEventListener('pointerup', up);
-                    head.removeEventListener('pointercancel', up);
-                    try { head.releasePointerCapture(ev.pointerId); } catch (e) {}
-                };
-                head.addEventListener('pointermove', move);
-                head.addEventListener('pointerup', up);
-                head.addEventListener('pointercancel', up);
-                ev.preventDefault();
-            });
-            window.addEventListener('resize', () => { if (!el.classList.contains('hidden')) placerMenuSauvegardes(); });
-            document.addEventListener('keydown', (ev) => {
-                if (ev.key !== 'Escape' || el.classList.contains('hidden')) return;
-                const t = ev.target;
-                if (t && t.closest && t.closest('input, textarea')) return; // laisse les champs de saisie gérer leur propre Échap
-                ev.stopPropagation();
-                fermerMenuSauvegardes();
-            }, true);
-        }
-
-        // La fenêtre reste ouverte pendant les actions ; la liste se met à jour d'elle-même.
-        function actionMenuSauvegardes(action) {
-            if (action === 'save') sauvegarderSous();
-            else if (action === 'update') mettreAJourSauvegarde();
-        }
-
-        function rendreMenuSauvegardes() {
-            const liste = document.getElementById('saved-grids-dropdown');
-            if (!liste) return;
-            liste.textContent = '';
-            const saved = lireSauvegardes();
-            const ajouter = (classe, texte, onclick) => {
-                const div = document.createElement('div');
-                div.className = classe;
-                const span = document.createElement('span');
-                span.className = 'sg-name';
-                span.textContent = texte;
-                div.appendChild(span);
-                div.addEventListener('click', onclick);
-                liste.appendChild(div);
-                return div;
-            };
-            if (nomGrilleChargee && saved[nomGrilleChargee]) {
-                ajouter('sg-item sg-action', `Sauvegarder « ${nomGrilleChargee} »`, () => actionMenuSauvegardes('update'));
-            }
-            ajouter('sg-item sg-action', '＋ Sauvegarder sous…', () => actionMenuSauvegardes('save'));
-            const sep = document.createElement('div');
-            sep.className = 'sg-sep';
-            liste.appendChild(sep);
-            const noms = Object.keys(saved);
-            if (noms.length === 0) {
-                const vide = document.createElement('div');
-                vide.className = 'sg-item sg-empty';
-                vide.textContent = 'Aucune grille sauvegardée';
-                liste.appendChild(vide);
-                return;
-            }
-            noms.forEach(nom => {
-                const ligne = ajouter('sg-item', nom, () => chargerGrilleSauvegardee(nom));
-                const del = document.createElement('span');
-                del.className = 'sg-del';
-                del.title = 'Supprimer';
-                del.textContent = '×';
-                del.addEventListener('click', (ev) => { ev.stopPropagation(); supprimerSauvegarde(nom); });
-                ligne.appendChild(del);
-            });
-        }
-
-        // --- Nom de la grille chargée (affiché au-dessus des dominos ; un clic permet de le renommer) ---
-        function majNomGrille() {
-            const lbl = document.getElementById('loaded-grid-name');
-            const inp = document.getElementById('grid-title-input');
-            const enSaisie = (document.activeElement === inp);
-            lbl.textContent = nomGrilleChargee || '';
-            lbl.hidden = !nomGrilleChargee || enSaisie;
-            if (!enSaisie) { inp.hidden = true; inp.value = nomGrilleChargee || ''; }
-            document.getElementById('saves-label').textContent = nomGrilleChargee || 'Sauvegardes';
-        }
-
-        function commencerRenommage() {
-            if (!nomGrilleChargee) return;
-            const inp = document.getElementById('grid-title-input');
-            document.getElementById('loaded-grid-name').hidden = true;
-            inp.hidden = false;
-            inp.value = nomGrilleChargee;
-            inp.focus();
-            inp.select();
-        }
-
-        // Valide le titre saisi. Si la grille est une sauvegarde, la sauvegarde est renommée avec elle.
-        function validerTitre(brut) {
-            const nom = String(brut || '').trim().slice(0, 60);
-            const ancien = nomGrilleChargee || null;
-            const inp = document.getElementById('grid-title-input');
-            inp.hidden = true;
-            const revenir = () => { inp.value = ancien || ''; majNomGrille(); };
-            if (!nom || nom === ancien) { revenir(); return; }
-            const saved = lireSauvegardes();
-            if (ancien && saved[ancien]) {
-                if (saved[nom] && !confirm(`Une grille « ${nom} » existe déjà dans les sauvegardes : la remplacer ?`)) { revenir(); return; }
-                const sortie = {};
-                Object.keys(saved).forEach(k => {
-                    if (k === ancien) sortie[nom] = saved[ancien];
-                    else if (k !== nom) sortie[k] = saved[k];
-                });
-                if (!ecrireSauvegardes(sortie)) { alert('Impossible de renommer la sauvegarde.'); revenir(); return; }
-            }
-            nomGrilleChargee = nom;
-            rendreMenuSauvegardes();
-            majNomGrille();
-        }
-
-        reglagesConnus = { style: document.getElementById('styleGamme').value, tonique: parseInt(document.getElementById('tonique').value, 10) || 0 };
-        majBoutonsAnnuler();
-
-        // Téléphone en portrait : la barre « Générer / Effacer » quitte le panneau de réglages (juste après lui)
-        // pour que le CSS puisse la coller en haut de l'écran pendant le défilement (un élément collant ne reste
-        // visible que dans son parent). Dans ce mode, l'icône d'impression et les boutons Annuler / Rétablir
-        // échangent leurs places (impression dans le panneau, Annuler / Rétablir dans la barre).
-        // Le bouton « masque » (noms des gammes) rejoint aussi la barre, à côté de Générer / Effacer.
-        // Ailleurs, tout retourne à sa place d'origine.
-        (function () {
-            const barre = document.getElementById('barreActions');
-            const panneau = document.querySelector('.controls');
-            const undo = document.getElementById('btnUndo');
-            const redo = document.getElementById('btnRedo');
-            const imprimer = barre && barre.querySelector('.btn-ghost');
-            const masque = document.getElementById('btnGammes');
-            if (!barre || !panneau || !undo || !redo || !imprimer || !masque || !window.matchMedia) return;
-            const groupeUndo = undo.parentElement;
-            const groupeMasque = masque.parentElement; // groupe d'origine : à la suite d'Apprentissage
-            const ancre = barre.nextElementSibling; // groupe qui suit la barre dans le panneau
-            const mq = window.matchMedia('screen and (hover: none) and (pointer: coarse) and (orientation: portrait) and (max-width: 600px)');
-            function placerBarre() {
-                if (mq.matches) {
-                    if (barre.parentElement !== panneau.parentElement) panneau.after(barre);
-                    groupeUndo.append(imprimer);
-                    barre.append(masque, undo, redo);
-                } else {
-                    if (barre.parentElement !== ancre.parentElement) ancre.before(barre);
-                    barre.append(imprimer);
-                    groupeUndo.append(undo, redo);
-                    groupeMasque.append(masque);
-                }
-            }
-            placerBarre();
-            if (mq.addEventListener) mq.addEventListener('change', placerBarre);
-            else if (mq.addListener) mq.addListener(placerBarre);
-        })();
-    </script>
-
-    <script>
-        // Mode hors ligne : le service worker (sw.js) met l'application en cache après la première visite en ligne.
-        // Il ne fonctionne qu'en https ou sur localhost (pas en ouvrant le fichier directement).
-        if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').catch((err) => console.warn('Service worker indisponible :', err.message));
-            });
-        }
-    </script>
-
+  </div>
+</div>
+
+<script>
+  const wrapperEl = document.getElementById('metronomeWrapper');
+
+  function resizeMetronome() {
+    const baseWidth = 460;
+    const baseHeight = 590;
+    const margin = 16;
+    
+    const availableWidth = window.innerWidth - margin;
+    const availableHeight = window.innerHeight - margin;
+
+    const scaleX = availableWidth / baseWidth;
+    const scaleY = availableHeight / baseHeight;
+    const scale = Math.min(scaleX, scaleY);
+
+    wrapperEl.style.transform = `scale(${scale})`;
+  }
+
+  window.addEventListener('resize', resizeMetronome);
+  window.addEventListener('orientationchange', resizeMetronome);
+
+  const MIN_BPM = 20;
+  const MAX_BPM = 240;
+
+  const MIN_Y = -380;
+  const MAX_Y = -60;
+
+  let bpm = 80;
+  let targetBpm = 80;
+  let activeBpm = 80;
+  let visualBpm = 80;
+  let beatsPerMeasure = 4;
+  let accentedBeats = new Set();
+  let currentBeat = 0;
+  let isRunning = false;
+  let isStopping = false;
+  let stopStartTime = 0;
+  let stopPhase = 0;
+  let stopOmega = 0;
+  let stopMaxAngle = 0;
+  let stopGamma = 0;
+  let stopDuration = 0;
+
+  let audioCtx = null;
+  let nextNoteTime = 0.0;
+  let timerID = null;
+  let animFrameReq = null;
+  let holdAnimFrame = null;
+  let audioStartTime = 0;
+  let pendulumPhase = 0;
+  let lastFrameAudioTime = 0;
+
+  let isTransitioningBpm = false;
+  let bpmTransitionAnim = null;
+
+  const pendulum = document.getElementById('pendulum');
+  const weight = document.getElementById('weight');
+  const rodEl = document.getElementById('rodEl');
+  const rodBaseEl = document.getElementById('rodBaseEl');
+  const bpmDisplay = document.getElementById('bpmDisplay');
+  const tempoText = document.getElementById('tempoText');
+  const scaleLadder = document.getElementById('scaleLadder');
+  const hubBtn = document.getElementById('hubBtn');
+  const slowerBtn = document.getElementById('slowerBtn');
+  const fasterBtn = document.getElementById('fasterBtn');
+
+  const batBtn = document.getElementById('batBtn');
+  const batDisplay = document.getElementById('batDisplay');
+  const beatMenu = document.getElementById('beatMenu');
+
+  const bpmStepsTopToBottom = [20, 30, 40, 50, 60, 72, 80, 96, 112, 126, 144, 160, 184, 208, 240];
+  const steps = [20, 30, 40, 50, 60, 72, 80, 96, 112, 126, 144, 160, 184, 208, 240];
+
+  function buildScale() {
+    scaleLadder.innerHTML = '';
+    const totalSteps = 28;
+    for (let i = 0; i <= totalSteps; i++) {
+      const stepEl = document.createElement('div');
+      stepEl.className = 'scale-step';
+      const isMajor = i % 2 === 0;
+      const tick = document.createElement('div');
+      tick.className = `tick-line ${isMajor ? 'major' : ''}`;
+      stepEl.appendChild(tick);
+
+      if (isMajor) {
+        const idx = i / 2;
+        if (idx < bpmStepsTopToBottom.length) {
+          const num = document.createElement('div');
+          num.className = 'scale-number';
+          num.textContent = bpmStepsTopToBottom[idx];
+          stepEl.appendChild(num);
+        }
+      }
+      scaleLadder.appendChild(stepEl);
+    }
+  }
+  buildScale();
+
+  function buildBeatMenu() {
+    beatMenu.innerHTML = '';
+
+    const valueDisplay = document.createElement('div');
+    valueDisplay.className = 'beat-value';
+    valueDisplay.textContent = beatsPerMeasure;
+    beatMenu.appendChild(valueDisplay);
+
+    const labelsRow = document.createElement('div');
+    labelsRow.className = 'beat-slider-labels';
+    for (let i = 1; i <= 12; i++) {
+      const lbl = document.createElement('span');
+      lbl.textContent = i;
+      labelsRow.appendChild(lbl);
+    }
+    beatMenu.appendChild(labelsRow);
+
+    const slider = document.createElement('input');
+    slider.type = 'range';
+    slider.min = '1';
+    slider.max = '12';
+    slider.step = '1';
+    slider.value = beatsPerMeasure;
+    slider.className = 'beat-slider';
+    slider.addEventListener('click', (e) => e.stopPropagation());
+    slider.addEventListener('input', (e) => {
+      e.stopPropagation();
+      beatsPerMeasure = parseInt(slider.value, 10);
+      batDisplay.textContent = beatsPerMeasure;
+      valueDisplay.textContent = beatsPerMeasure;
+      currentBeat = 0;
+      for (const b of Array.from(accentedBeats)) {
+        if (b >= beatsPerMeasure) accentedBeats.delete(b);
+      }
+      buildNotesRow();
+    });
+    beatMenu.appendChild(slider);
+
+    const notesRow = document.createElement('div');
+    notesRow.className = 'beat-notes-row';
+    notesRow.id = 'beatNotesRow';
+    beatMenu.appendChild(notesRow);
+
+    buildNotesRow();
+  }
+
+  function buildNotesRow() {
+    const notesRow = document.getElementById('beatNotesRow');
+    if (!notesRow) return;
+    notesRow.innerHTML = '';
+    for (let i = 0; i < beatsPerMeasure; i++) {
+      const isAccented = accentedBeats.has(i);
+      const noteBtn = document.createElement('div');
+      noteBtn.className = `note-icon ${isAccented ? 'accented' : ''}`;
+      noteBtn.innerHTML = `
+        <svg viewBox="0 0 20 40" class="note-svg">
+          <line x1="14" y1="2" x2="14" y2="26" class="note-stem" />
+          <ellipse cx="8" cy="30" rx="7" ry="5" class="note-head" transform="rotate(-15 8 30)"/>
+        </svg>`;
+      noteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (accentedBeats.has(i)) {
+          accentedBeats.delete(i);
+        } else {
+          accentedBeats.add(i);
+        }
+        buildNotesRow();
+      });
+      notesRow.appendChild(noteBtn);
+    }
+  }
+  buildBeatMenu();
+
+  batBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    beatMenu.classList.toggle('open');
+  });
+
+  window.addEventListener('click', () => {
+    beatMenu.classList.remove('open');
+  });
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      beatMenu.classList.remove('open');
+    }
+  });
+
+  const tempoCategories = [
+    { name: 'Larghissimo', max: 30, targetBpm: 20 },
+    { name: 'Grave', max: 45, targetBpm: 35 },
+    { name: 'Largo', max: 60, targetBpm: 50 },
+    { name: 'Larghetto', max: 66, targetBpm: 63 },
+    { name: 'Adagio', max: 76, targetBpm: 70 },
+    { name: 'Andante', max: 108, targetBpm: 90 },
+    { name: 'Moderato', max: 120, targetBpm: 114 },
+    { name: 'Allegro', max: 156, targetBpm: 135 },
+    { name: 'Vivace', max: 176, targetBpm: 166 },
+    { name: 'Presto', max: 200, targetBpm: 188 },
+    { name: 'Prestissimo', max: 241, targetBpm: 220 }
+  ];
+
+  function getTempoName(val) {
+    if (val < 30) return 'Larghissimo';
+    if (val < 45) return 'Grave';
+    if (val < 60) return 'Largo';
+    if (val < 66) return 'Larghetto';
+    if (val < 76) return 'Adagio';
+    if (val < 108) return 'Andante';
+    if (val < 120) return 'Moderato';
+    if (val < 156) return 'Allegro';
+    if (val < 176) return 'Vivace';
+    if (val < 200) return 'Presto';
+    return 'Prestissimo';
+  }
+
+  function handleTempoTierChange(direction = 'next') {
+    if (isStopping) return;
+    
+    let currentCatIdx = 0;
+    for (let i = 0; i < tempoCategories.length; i++) {
+      if (targetBpm < tempoCategories[i].max) {
+        currentCatIdx = i;
+        break;
+      }
+    }
+    
+    let nextCatIdx = currentCatIdx;
+
+    if (direction === 'prev') {
+      if (currentCatIdx > 0) {
+        nextCatIdx = currentCatIdx - 1;
+      }
+    } else {
+      if (currentCatIdx < tempoCategories.length - 1) {
+        nextCatIdx = currentCatIdx + 1;
+      }
+    }
+
+    if (nextCatIdx === currentCatIdx) {
+      stopTierHold();
+      return;
+    }
+
+    const newTarget = tempoCategories[nextCatIdx].targetBpm;
+    smoothTransitionToBpm(newTarget, false);
+  }
+
+  function handleTempoTextClick(e) {
+    if (isStopping) return;
+    e.stopPropagation();
+    handleTempoTierChange(e.shiftKey ? 'prev' : 'next');
+  }
+
+  tempoText.addEventListener('click', handleTempoTextClick);
+
+  function smoothTransitionToBpm(targetVal, isFastReset) {
+    if (isStopping) return;
+    if (isTransitioningBpm && bpmTransitionAnim) {
+      cancelAnimationFrame(bpmTransitionAnim);
+    }
+
+    isTransitioningBpm = true;
+    const startBpm = targetBpm;
+    const startTimeAnim = performance.now();
+    const duration = isFastReset ? 150 : 350;
+
+    function animateBpmStep(now) {
+      if (isStopping) {
+        isTransitioningBpm = false;
+        return;
+      }
+      const elapsed = now - startTimeAnim;
+      const progress = Math.min(1, elapsed / duration);
+      const easeProgress = 1 - Math.pow(1 - progress, 3);
+      
+      const currentVal = startBpm + (targetVal - startBpm) * easeProgress;
+      setTargetBpmDirect(currentVal);
+
+      if (progress < 1) {
+        bpmTransitionAnim = requestAnimationFrame(animateBpmStep);
+      } else {
+        setTargetBpmDirect(targetVal);
+        isTransitioningBpm = false;
+      }
+    }
+
+    bpmTransitionAnim = requestAnimationFrame(animateBpmStep);
+  }
+
+  function bpmToY(val) {
+    const clamped = Math.max(MIN_BPM, Math.min(MAX_BPM, val));
+    for (let i = 0; i < steps.length - 1; i++) {
+      if (clamped >= steps[i] && clamped <= steps[i + 1]) {
+        const ratio = (clamped - steps[i]) / (steps[i + 1] - steps[i]);
+        const y1 = MIN_Y + (i * (MAX_Y - MIN_Y) / (steps.length - 1));
+        const y2 = MIN_Y + ((i + 1) * (MAX_Y - MIN_Y) / (steps.length - 1));
+        return y1 + ratio * (y2 - y1);
+      }
+    }
+    return MIN_Y;
+  }
+
+  function yToBpm(y) {
+    const clampedY = Math.max(MIN_Y, Math.min(MAX_Y, y));
+    const indexFrac = ((clampedY - MIN_Y) / (MAX_Y - MIN_Y)) * (steps.length - 1);
+    const i = Math.min(Math.floor(indexFrac), steps.length - 2);
+    const ratio = indexFrac - i;
+    return steps[i] + ratio * (steps[i + 1] - steps[i]);
+  }
+
+  function updateUI(displayVal) {
+    const rounded = Math.round(displayVal);
+    bpmDisplay.textContent = rounded;
+    tempoText.textContent = getTempoName(rounded);
+    weight.style.top = `${bpmToY(displayVal)}px`;
+  }
+
+  function setTargetBpmDirect(newBpm) {
+    if (isStopping) return;
+    targetBpm = Math.max(MIN_BPM, Math.min(MAX_BPM, newBpm));
+    bpm = Math.round(targetBpm);
+    activeBpm = targetBpm;
+    visualBpm = targetBpm;
+    updateUI(visualBpm);
+  }
+
+  function updateTargetAndUI(newBpm) {
+    targetBpm = Math.max(MIN_BPM, Math.min(MAX_BPM, newBpm));
+    bpm = Math.round(targetBpm);
+    activeBpm = targetBpm;
+    visualBpm = targetBpm;
+    updateUI(visualBpm);
+  }
+
+  let isDraggingWeight = false;
+
+  function handleWeightStart(e) {
+    if (isRunning || isStopping) return;
+    if (isTransitioningBpm) {
+      isTransitioningBpm = false;
+      if (bpmTransitionAnim) cancelAnimationFrame(bpmTransitionAnim);
+    }
+    isDraggingWeight = true;
+    e.stopPropagation();
+  }
+
+  function handleWeightMove(e) {
+    if (!isDraggingWeight || isRunning || isStopping) return;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const pivotRect = pendulum.getBoundingClientRect();
+    
+    const wrapperRect = wrapperEl.getBoundingClientRect();
+    const currentScale = wrapperRect.height / 590;
+    
+    const relativeY = (clientY - pivotRect.top) / currentScale;
+    const newBpm = yToBpm(relativeY);
+    targetBpm = Math.max(MIN_BPM, Math.min(MAX_BPM, newBpm));
+    bpm = Math.round(targetBpm);
+    activeBpm = targetBpm;
+    visualBpm = targetBpm;
+    updateUI(visualBpm);
+  }
+
+  function handleWeightEnd() {
+    isDraggingWeight = false;
+  }
+
+  weight.addEventListener('mousedown', handleWeightStart);
+  window.addEventListener('mousemove', handleWeightMove);
+  window.addEventListener('mouseup', handleWeightEnd);
+
+  weight.addEventListener('touchstart', handleWeightStart, { passive: true });
+  window.addEventListener('touchmove', handleWeightMove, { passive: true });
+  window.addEventListener('touchend', handleWeightEnd);
+
+  const toggleClick = (e) => {
+    e.stopPropagation();
+    toggleMetronome();
+  };
+  rodEl.addEventListener('click', toggleClick);
+  rodBaseEl.addEventListener('click', toggleClick);
+
+  let holdTimer = null;
+  let isHoldingActive = false;
+
+  function startHold(delta) {
+    if (isStopping) return;
+    if (isTransitioningBpm) {
+      isTransitioningBpm = false;
+      if (bpmTransitionAnim) cancelAnimationFrame(bpmTransitionAnim);
+    }
+
+    updateTargetAndUI(targetBpm + delta);
+    if (targetBpm <= MIN_BPM || targetBpm >= MAX_BPM) return;
+    
+    isHoldingActive = true;
+
+    if (holdTimer) clearTimeout(holdTimer);
+    if (holdAnimFrame) cancelAnimationFrame(holdAnimFrame);
+
+    holdTimer = setTimeout(() => {
+      if (!isHoldingActive) return;
+      const holdStartTimeLoop = performance.now();
+
+      function accelerateLoop(timestamp) {
+        if (!isHoldingActive) return;
+        const elapsed = (timestamp - holdStartTimeLoop) / 1000;
+        const speed = Math.min(220, 6 * Math.exp(2.8 * elapsed));
+        const dt = 0.016;
+
+        let nextVal = targetBpm + delta * speed * dt;
+        updateTargetAndUI(nextVal);
+
+        if (targetBpm <= MIN_BPM || targetBpm >= MAX_BPM) {
+          stopHold();
+          return;
+        }
+
+        holdAnimFrame = requestAnimationFrame(accelerateLoop);
+      }
+      holdAnimFrame = requestAnimationFrame(accelerateLoop);
+    }, 250);
+  }
+
+  function stopHold() {
+    isHoldingActive = false;
+    if (holdTimer) {
+      clearTimeout(holdTimer);
+      holdTimer = null;
+    }
+    if (holdAnimFrame) {
+      cancelAnimationFrame(holdAnimFrame);
+      holdAnimFrame = null;
+    }
+  }
+
+  let tierHoldTimer = null;
+  let tierAnimFrame = null;
+  let isTierHoldingActive = false;
+
+  function startTierHold(direction) {
+    if (isStopping) return;
+    if (isTransitioningBpm) {
+      isTransitioningBpm = false;
+      if (bpmTransitionAnim) cancelAnimationFrame(bpmTransitionAnim);
+    }
+
+    let currentCatIdx = 0;
+    for (let i = 0; i < tempoCategories.length; i++) {
+      if (targetBpm < tempoCategories[i].max) {
+        currentCatIdx = i;
+        break;
+      }
+    }
+    if ((direction === 'prev' && currentCatIdx === 0) || (direction === 'next' && currentCatIdx === tempoCategories.length - 1)) {
+      return;
+    }
+
+    handleTempoTierChange(direction);
+    isTierHoldingActive = true;
+
+    if (tierHoldTimer) clearTimeout(tierHoldTimer);
+    if (tierAnimFrame) cancelAnimationFrame(tierAnimFrame);
+
+    tierHoldTimer = setTimeout(() => {
+      if (!isTierHoldingActive) return;
+      const startTime = performance.now();
+      let lastStepTime = startTime;
+
+      function tierLoop(timestamp) {
+        if (!isTierHoldingActive) return;
+        const elapsedTotal = (timestamp - startTime) / 1000;
+        const currentInterval = Math.max(20, 140 * Math.exp(-3.2 * elapsedTotal));
+
+        if (timestamp - lastStepTime >= currentInterval) {
+          handleTempoTierChange(direction);
+          lastStepTime = timestamp;
+        }
+
+        tierAnimFrame = requestAnimationFrame(tierLoop);
+      }
+      tierAnimFrame = requestAnimationFrame(tierLoop);
+    }, 100);
+  }
+
+  function stopTierHold() {
+    isTierHoldingActive = false;
+    if (tierHoldTimer) {
+      clearTimeout(tierHoldTimer);
+      tierHoldTimer = null;
+    }
+    if (tierAnimFrame) {
+      cancelAnimationFrame(tierAnimFrame);
+      tierAnimFrame = null;
+    }
+  }
+
+  function bindHoldButton(btn, delta) {
+    const start = (e) => {
+      e.preventDefault();
+      startHold(delta);
+    };
+    const stop = () => {
+      stopHold();
+    };
+
+    btn.addEventListener('mousedown', start);
+    btn.addEventListener('mouseup', stop);
+    btn.addEventListener('mouseleave', stop);
+
+    btn.addEventListener('touchstart', start, { passive: false });
+    btn.addEventListener('touchend', stop);
+    btn.addEventListener('touchcancel', stop);
+  }
+
+  bindHoldButton(slowerBtn, -1);
+  bindHoldButton(fasterBtn, 1);
+
+  window.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' || e.key === ' ') {
+      if (document.activeElement.tagName === 'INPUT') return;
+      e.preventDefault();
+      if (!e.repeat) toggleMetronome();
+    } else if (e.code === 'ArrowUp' || e.key === 'ArrowUp') {
+      if (isStopping) return;
+      if (document.activeElement.tagName === 'INPUT') return;
+      e.preventDefault();
+      if (e.repeat) return;
+      startHold(-1);
+    } else if (e.code === 'ArrowDown' || e.key === 'ArrowDown') {
+      if (isStopping) return;
+      if (document.activeElement.tagName === 'INPUT') return;
+      e.preventDefault();
+      if (e.repeat) return;
+      startHold(1);
+    } else if (e.code === 'ArrowRight' || e.key === 'ArrowRight') {
+      if (isStopping) return;
+      if (document.activeElement.tagName === 'INPUT') return;
+      e.preventDefault();
+      if (e.repeat) return;
+      startTierHold('next');
+    } else if (e.code === 'ArrowLeft' || e.key === 'ArrowLeft') {
+      if (isStopping) return;
+      if (document.activeElement.tagName === 'INPUT') return;
+      e.preventDefault();
+      if (e.repeat) return;
+      startTierHold('prev');
+    }
+  });
+
+  window.addEventListener('keyup', (e) => {
+    if (e.code === 'ArrowUp' || e.key === 'ArrowUp' || e.code === 'ArrowDown' || e.key === 'ArrowDown') {
+      stopHold();
+    } else if (e.code === 'ArrowRight' || e.key === 'ArrowRight' || e.code === 'ArrowLeft' || e.key === 'ArrowLeft') {
+      stopTierHold();
+    }
+  });
+
+  function playSound(time, isAccent) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    if (isAccent) {
+      // Son de type "wood block" aigu et fort : pas de descente de pitch
+      // (contrairement à un clic), timbre fixe et percussif, décroissance très rapide.
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(2600, time);
+      osc.frequency.exponentialRampToValueAtTime(2200, time + 0.01);
+
+      gain.gain.setValueAtTime(9.0, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + 0.014);
+
+      // Couche additionnelle plus grave pour donner le "corps" du bloc de bois
+      const subOsc = audioCtx.createOscillator();
+      const subGain = audioCtx.createGain();
+
+      subOsc.type = 'square';
+      subOsc.frequency.setValueAtTime(1100, time);
+
+      subGain.gain.setValueAtTime(5.0, time);
+      subGain.gain.exponentialRampToValueAtTime(0.001, time + 0.01);
+
+      subOsc.connect(subGain);
+      subGain.connect(audioCtx.destination);
+
+      subOsc.start(time);
+      subOsc.stop(time + 0.01);
+    } else {
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(2400, time);
+      osc.frequency.exponentialRampToValueAtTime(140, time + 0.018);
+
+      gain.gain.setValueAtTime(6.4, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + 0.018);
+    }
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.start(time);
+    osc.stop(time + 0.018);
+  }
+
+  // Horloge dans un Web Worker : les timers d'un onglet en arrière-plan sont
+  // fortement bridés (1 s, voire 1 min) dans le thread principal, pas dans un worker.
+  let tickWorker = null;
+  function getTickWorker() {
+    if (!tickWorker) {
+      const src = "let id=null;onmessage=e=>{if(e.data==='start'){if(id===null)id=setInterval(()=>postMessage('tick'),25);}else if(e.data==='stop'){clearInterval(id);id=null;}};";
+      tickWorker = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
+      tickWorker.onmessage = () => scheduler();
+    }
+    return tickWorker;
+  }
+
+  function scheduler() {
+    if (!isRunning) return;
+    // Si le thread a été gelé, on se recale au lieu de rejouer un paquet de clics en retard
+    if (nextNoteTime < audioCtx.currentTime - 0.05) {
+      nextNoteTime = audioCtx.currentTime + 0.05;
+    }
+    while (nextNoteTime < audioCtx.currentTime + 0.25) {
+      const isAccent = accentedBeats.has(currentBeat);
+      playSound(nextNoteTime, isAccent);
+      currentBeat = (currentBeat + 1) % beatsPerMeasure;
+      nextNoteTime += 60.0 / bpm;
+    }
+  }
+
+  function animate() {
+    if (isRunning) {
+      const now = audioCtx.currentTime;
+      const dt = now - lastFrameAudioTime;
+      lastFrameAudioTime = now;
+
+      const omega = Math.PI * (bpm / 60);
+      pendulumPhase += omega * dt;
+
+      const maxAngle = 10 + (240 - bpm) * (14 / 220);
+      const currentAngle = Math.sin(pendulumPhase) * maxAngle;
+
+      pendulum.style.transform = `rotate(${currentAngle}deg)`;
+
+      animFrameReq = requestAnimationFrame(animate);
+    } else if (isStopping) {
+      const tau = (performance.now() - stopStartTime) / 1000;
+      const progress = Math.min(1, tau / stopDuration);
+
+      const envelope = Math.exp(-stopGamma * tau * tau);
+      const currentAngle = stopMaxAngle * envelope * Math.sin(stopPhase + stopOmega * tau);
+
+      pendulum.style.transform = `rotate(${currentAngle}deg)`;
+
+      if (progress < 1) {
+        animFrameReq = requestAnimationFrame(animate);
+      } else {
+        isStopping = false;
+        pendulum.style.transform = `rotate(0deg)`;
+        weight.classList.remove('disabled');
+        slowerBtn.disabled = false;
+        fasterBtn.disabled = false;
+      }
+    } else {
+      pendulum.style.transform = `rotate(0deg)`;
+    }
+  }
+
+  function toggleMetronome() {
+    if ('audioSession' in navigator) {
+      try {
+        navigator.audioSession.type = 'playback';
+      } catch (e) {
+        console.error("Échec de la configuration AudioSession:", e);
+      }
+    }
+
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      // macOS/Safari/Chrome peuvent suspendre le contexte audio : on le relance
+      audioCtx.onstatechange = () => {
+        if (isRunning && audioCtx.state !== 'running') audioCtx.resume().catch(() => {});
+      };
+    }
+
+    if (isRunning || isStopping) {
+      if (isRunning) {
+        getTickWorker().postMessage('stop');
+        stopHold();
+        stopTierHold();
+        if (isTransitioningBpm) {
+          isTransitioningBpm = false;
+          if (bpmTransitionAnim) cancelAnimationFrame(bpmTransitionAnim);
+        }
+        const maxAngle = 10 + (240 - bpm) * (14 / 220);
+        const omega = Math.PI * (bpm / 60);
+
+        stopPhase = pendulumPhase;
+        stopOmega = omega;
+        stopMaxAngle = maxAngle;
+        stopStartTime = performance.now();
+
+        stopDuration = Math.min(0.4, (60.0 / bpm) * 0.5);
+        stopGamma = 4.60517 / (stopDuration * stopDuration);
+
+        isRunning = false;
+        isStopping = true;
+        slowerBtn.disabled = false;
+        fasterBtn.disabled = false;
+      } else {
+        isStopping = false;
+        if (animFrameReq) cancelAnimationFrame(animFrameReq);
+        pendulum.style.transform = `rotate(0deg)`;
+        weight.classList.remove('disabled');
+        slowerBtn.disabled = false;
+        fasterBtn.disabled = false;
+      }
+      hubBtn.style.borderColor = '#555660';
+    } else {
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      isStopping = false;
+      isRunning = true;
+      weight.classList.add('disabled');
+      currentBeat = 0;
+      activeBpm = targetBpm;
+      bpm = Math.round(targetBpm);
+      
+      audioStartTime = audioCtx.currentTime;
+      nextNoteTime = audioStartTime + (30 / bpm);
+      pendulumPhase = 0;
+      lastFrameAudioTime = audioStartTime;
+      
+      scheduler();
+      getTickWorker().postMessage('start');
+      animFrameReq = requestAnimationFrame(animate);
+      hubBtn.style.borderColor = '#ffffff';
+    }
+    syncMediaSession();
+  }
+
+  // --- Touches médias (⏯ / F8 sur un clavier de MacBook) ---------------------
+  // Le navigateur n'associe les touches médias à une page que si elle joue un
+  // vrai élément <audio> (Web Audio seul ne suffit pas). On fait donc tourner en
+  // boucle un son de garde pendant que le métronome joue, et on branche les
+  // actions de l'API Media Session sur toggleMetronome().
+  // Firefox ignore les médias « inaudibles » ou de moins de 3 s : le son de garde
+  // dure donc 5 s et contient un souffle à -66 dBFS, au-dessus de son seuil
+  // d'audibilité (-72 dBFS) mais imperceptible à l'oreille.
+  // À noter : il faut avoir interagi une fois avec la page (clic, Espace) après
+  // son chargement ; ensuite ⏯ lance et arrête le métronome même hors de l'onglet.
+  let keepAliveAudio = null;
+
+  function makeKeepAliveWavUrl() {
+    const rate = 8000, secs = 5, n = rate * secs; // 16 bits mono
+    const buf = new ArrayBuffer(44 + n * 2);
+    const v = new DataView(buf);
+    const str = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+    str(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); str(8, 'WAVE'); str(12, 'fmt ');
+    v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true);
+    v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+    str(36, 'data'); v.setUint32(40, n * 2, true);
+    // sinus 100 Hz, amplitude 16/32768 (≈ -66 dBFS) ; 500 périodes exactes → boucle sans clic
+    for (let i = 0; i < n; i++) {
+      v.setInt16(44 + i * 2, Math.round(16 * Math.sin(2 * Math.PI * 100 * i / rate)), true);
+    }
+    return URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }));
+  }
+
+  function syncMediaSession() {
+    if (!('mediaSession' in navigator)) return;
+    if (!keepAliveAudio) {
+      keepAliveAudio = new Audio(makeKeepAliveWavUrl());
+      keepAliveAudio.loop = true;
+    }
+    if (isRunning) {
+      keepAliveAudio.play().catch(() => {});
+      navigator.mediaSession.playbackState = 'playing';
+    } else {
+      keepAliveAudio.pause();
+      navigator.mediaSession.playbackState = 'paused';
+    }
+  }
+
+  function setupMediaSession() {
+    if (!('mediaSession' in navigator)) return;
+    try {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: 'Tempus fugit',
+        artist: 'Métronome',
+        artwork: [{ src: 'app/icon-512.png', sizes: '512x512', type: 'image/png' }]
+      });
+    } catch (e) {}
+    const handlers = {
+      play: () => {
+        if (isStopping) toggleMetronome();   // termine l'arrêt en cours
+        if (!isRunning) toggleMetronome();
+      },
+      pause: () => { if (isRunning) toggleMetronome(); },
+      stop:  () => { if (isRunning) toggleMetronome(); }
+    };
+    for (const [action, fn] of Object.entries(handlers)) {
+      try { navigator.mediaSession.setActionHandler(action, fn); } catch (e) {}
+    }
+  }
+  setupMediaSession();
+
+  hubBtn.addEventListener('click', toggleMetronome);
+
+  document.addEventListener('visibilitychange', () => {
+    if (isRunning && audioCtx && audioCtx.state !== 'running') audioCtx.resume().catch(() => {});
+  });
+
+  resizeMetronome();
+  updateUI(targetBpm);
+
+  // Fonctionnement hors ligne : le service worker (sw.js, à la racine) met
+  // l'appli en cache. Il exige https ou localhost (pas file://).
+  if ('serviceWorker' in navigator &&
+      (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    });
+  }
+</script>
 </body>
 </html>
