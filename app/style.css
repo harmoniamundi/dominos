@@ -295,6 +295,62 @@ body.gammes-visibles .domino-scale-label { display: block; }
 body.gammes-visibles .domino-scale-bubble { display: none; }
 .btn-toggle-icon { padding: 0 10px; }
 .btn-toggle-icon .icon-mask { width: 22px; height: 22px; }
+.btn-toggle-icon .icon-ear { width: 22px; height: 22px; }
+
+/* ===== Mode Énigme (bouton « oreille ») =====
+   Dominos masqués : seul le numéro reste visible, un « ? » remplace le contenu. Appui sur le « ? » : le domino se
+   révèle ; le « ? » passe alors en petit, dans le coin, et un nouvel appui le masque. Ailleurs : le domino est joué. */
+.domino-enigme-btn {
+    display: none;
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+    left: 50%;
+    width: 68px;
+    height: 68px;
+    margin: 0;
+    padding: 0;
+    transform: translate(-50%, -50%);
+    align-items: center;
+    justify-content: center;
+    font-family: Arial, sans-serif;
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 1;
+    color: #6b7280;
+    background: #ffffff;
+    border: 2px solid #b6bcc6;
+    border-radius: 50%;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+}
+.domino-enigme-btn:hover { color: var(--blue); border-color: var(--blue); }
+.domino-enigme-btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+body.mode-enigme .domino-enigme-btn { display: flex; }
+body.mode-enigme .domino-card:not(.revele) canvas,
+body.mode-enigme .domino-card:not(.revele) .domino-scale-label { visibility: hidden; }
+/* domino révélé : petit « ? » dans le coin supérieur droit (zone d'appui élargie autour) */
+body.mode-enigme .domino-card.revele .domino-enigme-btn {
+    top: 6px;
+    left: auto;
+    right: 6px;
+    width: 24px;
+    height: 24px;
+    transform: none;
+    font-size: 14px;
+    color: #ffffff;
+    background: var(--blue);
+    border: 0;
+}
+body.mode-enigme .domino-card.revele .domino-enigme-btn::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+}
+/* le nom de la gamme (bouton « masque ») laisse la place au petit « ? » */
+body.mode-enigme .domino-card.revele .domino-scale-label { right: 36px; }
 @keyframes bulle-gamme-in { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
 canvas { display: block; width: 100%; height: 100%; }
 
@@ -506,6 +562,9 @@ canvas { display: block; width: 100%; height: 100%; }
     .domino-number { left: 10px; top: 6px; font-size: 13px; }
     .domino-scale-label { top: 7px; left: 30px; right: 4px; font-size: 9.5px; }
     .domino-scale-bubble { top: 26px; left: 6px; max-width: calc(100% - 12px); font-size: 12px; padding: 4px 8px; }
+    .domino-enigme-btn { width: 56px; height: 56px; font-size: 32px; }
+    body.mode-enigme .domino-card.revele .domino-enigme-btn { top: 4px; right: 4px; width: 24px; height: 24px; font-size: 14px; }
+    body.mode-enigme .domino-card.revele .domino-scale-label { right: 32px; }
 
     /* Zones de toucher confortables */
     select { min-height: 40px; font-size: 14px; }
@@ -591,7 +650,8 @@ canvas { display: block; width: 100%; height: 100%; }
     .app-main > #barreActions .btn-generate:active,
     .app-main > #barreActions .btn-danger:active { background: #1f1f1f; }
     /* Masque (noms des gammes) : carré, juste après Effacer */
-    .app-main > #barreActions #btnGammes { flex: 0 0 40px; min-width: 40px; height: 40px; padding: 0; }
+    .app-main > #barreActions #btnGammes,
+    .app-main > #barreActions #btnEnigme { flex: 0 0 40px; min-width: 40px; height: 40px; padding: 0; }
     /* Annuler / Rétablir : carrés à droite de la barre */
     .app-main > #barreActions #btnUndo,
     .app-main > #barreActions #btnRedo { flex: 0 0 40px; min-width: 40px; padding: 0; font-size: 18px; }
@@ -635,5 +695,6 @@ canvas { display: block; width: 100%; height: 100%; }
     .print-spacer td { height: 10mm; }
     #grid { max-width: 100%; padding: 0 10mm; gap: 15px; display: flex; flex-wrap: wrap; }
     .domino-scale-bubble { display: none !important; }
+    body.mode-enigme .domino-card.revele .domino-enigme-btn { display: none; }
     .domino-card { break-inside: avoid !important; page-break-inside: avoid !important; transform: none !important; box-shadow: none !important; border-radius: 0; }
 }
